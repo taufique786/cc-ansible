@@ -1,0 +1,73 @@
+[Unit]
+Description=skynet-dev
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/skynet-dev
+User=skynet
+
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=skynet-dev
+SyslogFacility=local0
+SyslogLevel=info
+
+
+###############
+# hubot-slack #
+#
+Environment=HUBOT_SLACK_BOTNAME={{ HUBOT_SLACK_BOTNAME|default ('skynet-dev') }}
+Environment=HUBOT_SLACK_TOKEN={{ HUBOT_SLACK_TOKEN|default ('Your-HUBOT_SLACK_TOKEN-Goes-Here') }}
+
+####################
+# hubot-clc-skynet #
+#
+# Skynet Production State
+Environment=SKYNET_PROD_STATE={{ SKYNET_PROD_STATE|default ('false') }}
+# 
+# UI Slack Channel
+Environment=SKYNETAPI_SLACK_TOKEN={{ SKYNETAPI_SLACK_TOKEN|default ('Your-SKYNETAPI_SLACK_TOKEN-Goes-Here') }}
+Environment=ALICE_SLACK_ID={{ ALICE_SLACK_ID|default ('Your-ALICE_SLACK_ID-Goes-Here') }}
+Environment=SKYNET_SLACK_ID={{ SKYNET_SLACK_ID|default ('Your-SKYNET_SLACK_ID-Goes-Here') }}
+Environment=SKYMINION_SLACK_ID={{ SKYMINION_SLACK_ID|default ('Your-SKYMINION_SLACK_ID-Goes-Here') }}
+Environment=CUSTCARE_SLACK_CHANNEL={{ CUSTCARE_SLACK_CHANNEL|default ('Your-CUSTCARE_SLACK_CHANNEL-Goes-Here') }}
+#
+# Hubot PagerDuty API Key
+Environment=HUBOT_PAGERDUTY_API={{ HUBOT_PAGERDUTY_API|default ('Your-HUBOT_PAGERDUTY_API-Goes-Here') }}
+Environment=HUBOT_PAGERDUTY_DOMAIN={{ HUBOT_PAGERDUTY_DOMAIN|default ('Your-HUBOT_PAGERDUTY_DOMAIN-Goes-Here') }}
+Environment=HUBOT_PAGERDUTY_IC_SCHEDULE={{ HUBOT_PAGERDUTY_IC_SCHEDULE|default ('Your-HUBOT_PAGERDUTY_IC_SCHEDULE-Goes-Here') }}
+Environment=HUBOT_PAGERDUTY_BATMAN_SCHEDULE={{ HUBOT_PAGERDUTY_BATMAN_SCHEDULE|default ('Your-HUBOT_PAGERDUTY_BATMAN_SCHEDULE-Goes-Here') }}
+Environment=HUBOT_PAGERDUTY_EXECESC_SCHEDULE={{ HUBOT_PAGERDUTY_EXECESC_SCHEDULE|default ('Your-HUBOT_PAGERDUTY_EXECESC_SCHEDULE-Goes-Here') }}
+Environment=HUBOT_PAGERDUTY_CAPCOM_SCHEDULE={{ HUBOT_PAGERDUTY_CAPCOM_SCHEDULE|default ('Your-HUBOT_PAGERDUTY_CAPCOM_SCHEDULE-Goes-Here') }}
+Environment=SKYNET_PD_SCHEDULE_ID={{ SKYNET_PD_SCHEDULE_ID|default ('Your-SKYNET_PD_SCHEDULE_ID-Goes-Here') }}
+Environment=SKYNET_PD_INT_KEY={{ SKYNET_PD_INT_KEY|default ('Your-SKYNET_PD_INT_KEY-Goes-Here') }}
+#
+# Skynet ZD Credentials
+Environment=SKYNET_ZD_USERNAME={{ SKYNET_ZD_USERNAME|default ('Your-SKYNET_ZD_USERNAME-Goes-Here') }}
+Environment=SKYNET_ZD_PASSWORD={{ SKYNET_ZD_PASSWORD|default ('Your-SKYNET_ZD_PASSWORD-Goes-Here') }}
+#
+# Hubot CLC Diags Delay
+Environment=HUBOT_DIAGS_DELAY=1000
+#
+# Hubot CLC IP Tool Datacenter
+Environment=HUBOT_DC_LOC={{ HUBOT_DC_LOC|default ('Your-HUBOT_DC_LOC-Goes-Here') }}
+#
+# Skynet Trello Credentials
+Environment=SKYNET_TRELLO_KEY={{ SKYNET_TRELLO_KEY|default ('Your-SKYNET_TRELLO_KEY-Goes-Here') }}
+Environment=SKYNET_TRELLO_TOKEN={{ SKYNET_TRELLO_TOKEN|default ('Your-SKYNET_TRELLO_TOKEN-Goes-Here') }}
+Environment=CLC_TRELLO_ORG_ID={{ CLC_TRELLO_ORG_ID|default ('Your-CLC_TRELLO_ORG_ID-Goes-Here') }}
+#
+# X.CTL.IO Token
+Environment=HUBOT_X_TOKEN={{ HUBOT_X_TOKEN|default ('Your-HUBOT_X_TOKEN-Goes-Here') }}
+
+
+ExecStart=/opt/skynet-dev/node_modules/hubot/bin/hubot --adapter slack
+
+[Install]
+WantedBy=multi-user.target

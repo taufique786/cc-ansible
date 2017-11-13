@@ -1,0 +1,246 @@
+# /etc/nginx/nginx.conf
+
+user  nginx;
+pid        /var/run/nginx.pid;
+
+error_log  /var/log/nginx/error.log warn;
+
+worker_processes    5; # Default is 1
+events {
+  worker_connections  4096;  # Default is 1024
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    include       /etc/nginx/conf.d/*.conf;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    #tcp_nopush     on;
+    keepalive_timeout  65;
+    #gzip  on;
+
+    proxy_set_header    Host            $host;
+    proxy_set_header    X-Real-IP       $remote_addr;
+    proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+}
+
+stream {
+
+    # AU1 Redis on port TCP 63791
+    upstream redis63791tcp_servers {
+        least_conn;
+        server 10.164.15.99:6379;
+    }
+    server {
+        listen 63791;
+        proxy_pass redis63791tcp_servers;
+    }
+
+    # CA1 Redis on port TCP 63792
+    upstream redis63792tcp_servers {
+        least_conn;
+        server 10.54.10.103:6379;
+    }
+    server {
+        listen 63792;
+        proxy_pass redis63792tcp_servers;
+    }
+
+    # CA2 Redis on port TCP 63793
+    upstream redis63793tcp_servers {
+        least_conn;
+        server 10.59.10.114:6379;
+    }
+    server {
+        listen 63793;
+        proxy_pass redis63793tcp_servers;
+    }
+
+    # CA3 Redis on port TCP 63794
+    upstream redis63794tcp_servers {
+        least_conn;
+        server 10.104.15.112:6379;
+    }
+    server {
+        listen 63794;
+        proxy_pass redis63794tcp_servers;
+    }
+
+    # DE1 Redis on port TCP 63795
+    upstream redis63795tcp_servers {
+        least_conn;
+        server 10.114.10.183:6379;
+    }
+    server {
+        listen 63795;
+        proxy_pass redis63795tcp_servers;
+    }
+
+    # DE3 Redis on port TCP 63796
+    upstream redis63796tcp_servers {
+        least_conn;
+        server 10.186.15.21:6379;
+    }
+    server {
+        listen 63796;
+        proxy_pass redis63796tcp_servers;
+    }
+
+    # GB1 Redis on port TCP 63797
+    upstream redis63797tcp_servers {
+        least_conn;
+        server 10.64.10.101:6379;
+    }
+    server {
+        listen 63797;
+        proxy_pass redis63797tcp_servers;
+    }
+
+    # GB3 Redis on port TCP 63798
+    upstream redis63798tcp_servers {
+        least_conn;
+        server 10.109.15.14:6379;
+    }
+    server {
+        listen 63798;
+        proxy_pass redis63798tcp_servers;
+    }
+
+    # IL1 Redis on port TCP 63799
+    upstream redis63799tcp_servers {
+        least_conn;
+        server 10.98.100.31:6379;
+    }
+    server {
+        listen 63799;
+        proxy_pass redis63799tcp_servers;
+    }
+
+    # NE1 Redis on port TCP 63800
+    upstream redis63800tcp_servers {
+        least_conn;
+        server 10.239.15.15:6379;
+    }
+    server {
+        listen 63800;
+        proxy_pass redis63800tcp_servers;
+    }
+
+    # NY1 Redis on port TCP 63801
+    upstream redis63801tcp_servers {
+        least_conn;
+        server 10.78.10.197:6379;
+    }
+    server {
+        listen 63801;
+        proxy_pass redis63801tcp_servers;
+    }
+
+    # SG1 Redis on port TCP 63802
+    upstream redis63802tcp_servers {
+        least_conn;
+        server 10.134.15.198:6379;
+    }
+    server {
+        listen 63802;
+        proxy_pass redis63802tcp_servers;
+    }
+
+    # UC1 Redis on port TCP 63803
+    upstream redis63803tcp_servers {
+        least_conn;
+        server 10.124.15.47:6379;
+    }
+    server {
+        listen 63803;
+        proxy_pass redis63803tcp_servers;
+    }
+
+    # UT1 Redis on port TCP 63804
+    upstream redis63804tcp_servers {
+        least_conn;
+        server 10.98.10.183:6379;
+    }
+    server {
+        listen 63804;
+        proxy_pass redis63804tcp_servers;
+    }
+
+    # VA1 Redis on port TCP 63805
+    upstream redis63805tcp_servers {
+        least_conn;
+        server 10.129.15.82:6379;
+    }
+    server {
+        listen 63805;
+        proxy_pass redis63805tcp_servers;
+    }
+
+    # VA2 Redis on port TCP 63806
+    upstream redis63806tcp_servers {
+        least_conn;
+        server 10.170.15.222:6379;
+    }
+    server {
+        listen 63806;
+        proxy_pass redis63806tcp_servers;
+    }
+
+    # WA1 Redis on port TCP 63807
+    upstream redis63807tcp_servers {
+        least_conn;
+        server 10.88.10.213:6379;
+    }
+    server {
+        listen 63807;
+        proxy_pass redis63807tcp_servers;
+    }
+
+    # UC1 or GB3 SITE SPECIFIC Protected Redis on port TCP 63863
+    upstream redis63863tcp_servers {
+        least_conn;
+        #server 10.124.15.63:6379; # On the UC1 NGINX Proxy uncomment this line!
+        #server 10.109.15.34:6379; # On the GB3 NGINX Proxy uncomment this line!
+    }
+    server {
+        listen 63863;
+        proxy_pass redis63863tcp_servers;
+    }
+
+    # UC1 Protected Redis on port TCP 63864
+    upstream redis63864tcp_servers {
+        least_conn;
+        server 10.124.15.63:6379;
+    }
+    server {
+        listen 63864;
+        proxy_pass redis63864tcp_servers;
+    }
+
+    # GB3 Protected Redis on port TCP 63865
+    upstream redis63865tcp_servers {
+        least_conn;
+        server 10.109.15.34:6379;
+    }
+    server {
+        listen 63865;
+        proxy_pass redis63865tcp_servers;
+    }
+
+    # VA2 Bender on port TCP 63866
+    upstream bender63866tcp_servers {
+        least_conn;
+        server 10.170.15.14:9200;
+    }
+    server {
+        listen 63866;
+        proxy_pass bender63866tcp_servers;
+    }
+
+}

@@ -1,0 +1,117 @@
+# /etc/nginx/nginx.conf
+
+user  nginx;
+pid        /var/run/nginx.pid;
+
+error_log  /var/log/nginx/error.log warn;
+
+worker_processes    5; # Default is 1
+events {
+  worker_connections  4096;  # Default is 1024
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    include       /etc/nginx/conf.d/*.conf;
+    default_type  application/octet-stream;
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+    sendfile        on;
+    #tcp_nopush     on;
+    keepalive_timeout  65;
+    #gzip  on;
+
+    proxy_set_header    Host            $host;
+    proxy_set_header    X-Real-IP       $remote_addr;
+    proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    # Kibana HTTP requests on port TCP 80 proxy to port TCP 5601
+    upstream kibana_servers {
+        least_conn;
+        server 10.127.215.21:5601;
+        server 10.127.215.22:5601;
+    }
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://kibana_servers;
+        }
+    }
+}
+
+stream {
+
+    # SNMP traps on port UDP 162
+    upstream snmptraplog162udp_servers {
+        server 10.125.194.201:162;
+    }
+    server {
+        listen 162 udp;
+        proxy_pass snmptraplog162udp_servers;
+    }
+
+    # Syslog messages on port UDP 514
+    upstream syslog514udp_servers {
+        server 10.125.194.201:514;
+    }
+    server {
+        listen 514 udp;
+        proxy_pass syslog514udp_servers;
+    }
+
+    # Syslog messages on port TCP 514
+    upstream syslog514tcp_servers {
+        least_conn;
+        server 10.125.194.201:514;
+    }
+    server {
+        listen 514;
+        proxy_pass syslog514tcp_servers;
+    }
+
+    # Sinopia port TCP 4873
+    upstream sinopia4873tcp_servers {
+        least_conn;
+        server 10.125.194.201:4873;
+    }
+    server {
+        listen 4873;
+        proxy_pass sinopia4873tcp_servers;
+    }
+
+    # Beats logs shipped on port TCP 5044
+    upstream beats5044tcp_servers {
+        least_conn;
+        server 10.125.194.201:5044;
+    }
+    server {
+        listen 5044;
+        proxy_pass beats5044tcp_servers;
+    }
+
+    # TCP 9000
+    upstream graylog9000tcp_servers {
+        least_conn;
+        server 10.125.194.201:9000;
+    }
+    server {
+        listen 9000;
+        proxy_pass graylog9000tcp_servers;
+    }
+
+    # TCP 10514
+    upstream syslog10514tcp_servers {
+        least_conn;
+        server 10.125.194.201:10514;
+    }
+    server {
+        listen 10514;
+        proxy_pass syslog10514tcp_servers;
+    }
+
+}
+

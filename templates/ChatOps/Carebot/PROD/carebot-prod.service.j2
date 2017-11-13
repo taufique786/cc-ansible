@@ -1,0 +1,34 @@
+[Unit]
+Description=carebot-prod
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/carebot-prod
+User=carebot
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=carebot-prod
+SyslogFacility=local0
+SyslogLevel=info
+
+Restart=always
+RestartSec=10
+
+# hubot-slack
+Environment=HUBOT_SLACK_BOTNAME={{ HUBOT_SLACK_BOTNAME|default ('carebot') }}
+Environment=HUBOT_SLACK_TOKEN={{ HUBOT_SLACK_TOKEN|default ('YourHubotSlackAPITokenKeyGoesHere') }}
+
+# hubot-auth
+Environment=HUBOT_AUTH_ADMIN={{ HUBOT_AUTH_ADMIN|default ('U03PY87MV,U02GE47UH,U02A8V1AH,U02AB1P81,U04FA890Y,U02A90009,U035F5Z99,U041YNN2R,U03HCTSCT') }}
+
+# Hubot CLC Diags Delay
+Environment=HUBOT_DIAGS_DELAY={{ HUBOT_DIAGS_DELAY|default ('1000') }}
+
+
+ExecStart=/opt/carebot-prod/node_modules/hubot/bin/hubot --adapter slack
+
+[Install]
+WantedBy=multi-user.target

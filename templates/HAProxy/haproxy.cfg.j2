@@ -1,0 +1,38 @@
+global
+    daemon
+    maxconn     4000
+    log         127.0.0.1 local2
+    user        haproxy
+    group       haproxy
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    stats       socket              /var/lib/haproxy/stats
+    stats       timeout             30s
+
+defaults
+    mode        http
+    log         global
+    option      httplog
+    option      dontlognull
+    option      http-server-close
+    option      forwardfor          except 127.0.0.0/8
+    option      redispatch
+    retries     3
+    timeout     http-request        10s
+    timeout     queue               1m
+    timeout     connect             10s
+    timeout     client              1m
+    timeout     server              1m
+    timeout     http-keep-alive     10s
+    timeout     check               10s
+
+frontend http-in
+    bind *:80
+    default_backend servers
+    option forwardfor
+
+backend servers
+    balance roundrobin
+    server ws01 172.217.1.68:80 check
+    server ws02 98.139.183.24:80 check
+    server ws03 204.79.197.200:80 check

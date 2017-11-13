@@ -1,0 +1,74 @@
+[Unit]
+Description=chatops-prod
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/chatops-prod
+User=chatops
+
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=chatops-prod
+SyslogFacility=local0
+SyslogLevel=info
+
+Restart=always
+RestartSec=10
+
+# hubot-slack
+Environment=HUBOT_SLACK_BOTNAME={{ HUBOT_SLACK_BOTNAME|default ('YourHubotNameGoesHere') }}
+Environment=HUBOT_SLACK_TOKEN={{ HUBOT_SLACK_TOKEN|default ('YourHubotSlackAPITokenKeyGoesHere') }}
+
+# hubot-auth
+Environment=HUBOT_AUTH_ADMIN={{ HUBOT_AUTH_ADMIN|default ('U03PY87MV,U02GE47UH,U02A8V1AH,U02AB1P81,U04FA890Y,U02A90009,U035F5Z99,U041YNN2R,U03HCTSCT') }}
+
+# hubot-clc-ansible
+Environment=CLC_V2_API_USERNAME={{ CLC_V2_API_USERNAME|default ('YourCLCControlUsernameForAPIv2GoesHere') }}
+Environment=CLC_V2_API_PASSWD={{ CLC_V2_API_PASSWD|default ('YourCLCControlPasswordForAPIv2GoesHere') }}
+
+# cc-node-global
+Environment=CLC_ES_USER={{ CLC_ES_USER|default ('YourCLCElasticSearchUserGoesHere') }}
+Environment=CLC_ES_PASSWORD={{ CLC_ES_PASSWORD|default ('YourCLCElasticSearchPasswordGoesHere') }}
+
+# hubot-ansible
+Environment=HUBOT_GITHUB_USERNAME={{ HUBOT_GITHUB_USERNAME|default ('YourAnsibleGitHubUsername') }}
+Environment=HUBOT_GITHUB_PASSWORD={{ HUBOT_GITHUB_PASSWORD|default ('YourAnsibleGitHubPassword') }}
+Environment=HUBOT_ANSIBLE_RESTRICTTOCHANNEL=customer-care
+Environment=HUBOT_ANSIBLE_INVENTORY_FILE=/etc/ansible/hosts
+Environment=HUBOT_ANSIBLE_REMOTE_USER=Administrator
+Environment=HUBOT_ANSIBLE_AUTHORIZED_ROLES=deploy
+Environment=HUBOT_ANSIBLE_PRIVATE_KEY=/root/.ssh/chatops_cc-ansible_github_id_rsa
+#Environment=HUBOT_ANSIBLE_PREFIX_HOSTS=
+
+# hubot-clc-dispatcher
+Environment=CHRYSUS_REDISPASS={{ CHRYSUS_REDISPASS|default ('RedisPasswordGoesHere') }}
+Environment=CHRYSUS_REDISCHAN=prod
+
+# hubot-clc-zendesk
+Environment=ALICE_ZD_USERNAME={{ ALICE_ZD_USERNAME|default ('ZDUsernameGoesHere') }}
+Environment=ALICE_ZD_PASSWORD={{ ALICE_ZD_PASSWORD|default ('ZDPasswordGoesHere') }}
+Environment=ZDV_USER={{ ZDV_USER|default ('ZDVUsernameGoesHere') }}
+Environment=ZDV_TOKEN={{ ZDV_TOKEN|default ('ZDVTokenGoesHere') }}
+
+# hubot-clc-zenoss
+Environment=HUBOT_DS9_SA_USER={{ HUBOT_DS9_SA_USER|default ('DS9SaUsernameGoesHere') }}
+Environment=HUBOT_DS9_SA_PASSWORD={{ HUBOT_DS9_SA_PASSWORD|default ('DS9SaPasswordGoesHere') }}
+
+# cc-hubot-forecast
+Environment=FC_API_KEY={{ FC_API_KEY|default ('FcApiKeyGoesHere') }}
+
+# Protected Redis
+Environment=PROTECTED_REDIS_HOST={{ PROTECTED_REDIS_HOST|default ('127.0.0.1') }}
+Environment=PROTECTED_REDIS_PORT={{ PROTECTED_REDIS_PORT|default ('63863') }}
+Environment=PROTECTED_REDIS_PASS={{ PROTECTED_REDIS_PASS|default ('ProtectedRedisPasswordGoesHere') }}
+
+# Bender Connection
+Environment=BENDER_CONNECTION={{ BENDER_CONNECTION|default ('http://10.124.15.14:63866') }}
+
+
+ExecStart=/opt/chatops-prod/node_modules/hubot/bin/hubot --adapter slack
+
+[Install]
+WantedBy=multi-user.target

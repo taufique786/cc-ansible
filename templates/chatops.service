@@ -1,0 +1,67 @@
+[Unit]
+{{ chatops_service_description }}
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+{{ chatops_service_working_directory }}
+{{ chatops_service_user }}
+
+Restart=always
+RestartSec=10
+
+# Logging
+{{ chatops_service_hubot_logging_standard_output }}
+{{ chatops_service_hubot_logging_standard_error }}
+{{ chatops_service_hubot_logging_syslog_facility }}
+{{ chatops_service_hubot_logging_syslog_level }}
+
+# Hubot Slack module
+{{ chatops_service_environment_hubot_slack_botname }}
+{{ chatops_service_environment_hubot_slack_token }}
+
+# Hubot Auth module
+{{ chatops_service_environment_hubot_auth_admin }}
+
+# Hubot Ansible module
+{{ chatops_service_environment_hubot_ansible_inventory_file }}
+{{ chatops_service_environment_hubot_ansible_private_key }}
+{{ chatops_service_environment_hubot_ansible_prefix_hosts }}
+{{ chatops_service_environment_hubot_ansible_remote_user }}
+{{ chatops_service_environment_hubot_ansible_authorized_roles }}
+{{ chatops_service_environment_hubot_ansible_restricttochannel }}
+{{ chatops_service_environment_hubot_ansible_github_username }}
+{{ chatops_service_environment_hubot_ansible_github_password }}
+
+# CLC SDK Control creds for Ansible
+{{ chatops_service_environment_clc_v2_api_username }}
+{{ chatops_service_environment_clc_v2_api_passwd }}
+
+# Hubot CLC Diags Delay
+{{ hubot_diags_delay }}
+
+# Hubot CLC IP Tool Datacenter
+{{ hubot_dc_loc }}
+
+# Hubot SRX
+{{ chatops_service_environment_srx_core }}
+{{ chatops_service_environment_srx_edge }}
+{{ chatops_service_environment_srx_username }}
+{{ chatops_service_environment_srx_password }}
+
+# Alice Zendesk
+{{ chatops_service_environment_alice_zendesk_user }}
+{{ chatops_service_environment_alice_zendesk_password }}
+{{ chatops_service_environment_zendesk_voice_user }}
+{{ chatops_service_environment_zendesk_voice_token }}
+
+# Hubot Shared VPX LB
+{{ chatops_service_environment_vpx_rnatip }}
+{{ chatops_service_environment_vpx_username }}
+{{ chatops_service_environment_vpx_password }}
+
+{{ chatops_service_environment_execstart }}
+
+[Install]
+WantedBy=multi-user.target
