@@ -1,0 +1,24 @@
+{
+  "name": "SkyMinion",
+  "version": "1.0.0",
+  "description": "Skynet Minion Service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": {
+    "email": "21.kmart@gmail.com",
+    "name": "Kevin Martin",
+    "url": "https://github.com/kmart2234"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "hubot": "^2.18.0",
+    "hubot-env": "0.0.2",
+    "hubot-redis-brain": "0.0.3",
+    "hubot-slack": "^3.4.2",
+    "cc-hubot-minion": "1.0.10",
+    "node-slack-upload": "^1.1.1"
+  }
+}

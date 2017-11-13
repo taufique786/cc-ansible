@@ -1,0 +1,25 @@
+---
+
+- name: Install crontab entry for Slack connector watchdog on ChatOps Global servers
+  hosts: UC1T3NCOPS-G02
+  gather_facts: False
+  tasks:
+  - name: "Add /opt/watchdog directory"
+    file:
+      path: /opt/watchdog
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+  - name: "Install watchdog script"
+    copy:
+      src: files/watchdog/skyminion-slack-adapter-watchdog.sh
+      dest: /opt/watchdog/skyminion-slack-adapter-watchdog.sh
+      owner: root
+      group: root
+      mode: 0744
+  - cron:
+      name: "Add /opt/watchdog/skyminion-slack-adapter-watchdog.sh to test for Slack connection."
+      minute: "0,5,10,15,20,25,30,35,40,45,50,55"
+      job: "/opt/watchdog/skyminion-slack-adapter-watchdog.sh > /dev/null 2>&1"
+      state: "present"

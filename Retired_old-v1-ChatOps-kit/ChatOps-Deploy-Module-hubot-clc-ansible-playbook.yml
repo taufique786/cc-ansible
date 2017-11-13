@@ -1,0 +1,40 @@
+---
+
+- hosts: ChatOpsGlobal
+  tasks:
+  - name: Install or update hubot-clc-ansible from our Registry
+    shell: cd /opt/chatops; /usr/local/bin/npm install hubot-clc-ansible --save
+  - name: Install or update hubot-redis-brain
+    shell: cd /opt/chatops; /usr/local/bin/npm install hubot-redis-brain --save
+  - name: Install or update hubot-auth
+    shell: cd /opt/chatops; /usr/local/bin/npm install hubot-auth --save
+  - name: Install or update node-rest-client
+    shell: cd /opt/chatops; /usr/local/bin/npm install node-rest-client
+  - name: Install or update hubot-conversation
+    shell: cd /opt/chatops; /usr/local/bin/npm install hubot-conversation
+  - name: Install or update github
+    shell: cd /opt/chatops; /usr/local/bin/npm install github
+
+  - name: Disable chatops.service
+    raw: /usr/bin/systemctl disable chatops.service
+  - name: Delete the current symbolic link chatops.service in /etc/systemd/system/
+    raw: /usr/bin/rm -f /etc/systemd/system/chatops.service
+  - name: Delete the current file chatops.service in /opt/chatops/
+    raw: /usr/bin/rm -f /opt/chatops/chatops.service
+
+  - name: Fill in the variables and copy templates/chatops.service to remote /etc/systemd/system/chatops.service
+    template:
+      src=templates/chatops.service
+      dest=/etc/systemd/system/chatops.service
+      owner=root
+      group=root
+      mode=0755
+
+  - name: Create symbolic /opt/chatops/chatops.service to /etc/systemd/system/chatops.service
+    raw: ln -s /etc/systemd/system/chatops.service /opt/chatops/chatops.service
+  - name: Register and enable the chatops.service
+    service: name=chatops.service pattern=/etc/systemd/system/chatops.service enabled=yes
+  - name: Reload systemctl
+    raw: /usr/bin/systemctl daemon-reload
+
+# It is generally recommended to restart the chatops service at this point after deploying / when ready to restart ChatOpsGlobal

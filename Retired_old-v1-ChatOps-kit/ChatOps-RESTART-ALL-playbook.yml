@@ -1,0 +1,21 @@
+---
+
+- hosts: VA1T3NCOPS-D01 
+  tasks:
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service
+
+- hosts: ChatOpsGlobal
+  tasks:
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service
+
+- hosts: GB3T3NCOPS-G01
+  tasks:
+  - name: Stopping chatops.service in GB3 Global for now!
+    raw: /usr/bin/systemctl stop chatops.service
+
+- hosts: ChatOpsSatellite
+  tasks:
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service

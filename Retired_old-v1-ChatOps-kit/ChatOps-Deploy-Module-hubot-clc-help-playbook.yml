@@ -1,0 +1,19 @@
+---
+
+- hosts: ChatOpsGlobal 
+  tasks:
+  - name: Copy the updated files/CC_ChatOps_Global/scripts/hubot-clc-help.js to /opt/chatops/scripts/hubot-clc-help.js
+    copy:
+      src=files/CC_ChatOps_Global/scripts/hubot-clc-help.js
+      dest=/opt/chatops/scripts/hubot-clc-help.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Copy the updated files/CC_ChatOps_Global/node_modules/hubot-help/src/help.coffee to /opt/chatops/node_modules/hubot-help/src/help.coffee 
+    copy:
+      src=files/CC_ChatOps_Global/node_modules/hubot-help/src/help.coffee
+      dest=/opt/chatops/node_modules/hubot-help/src/help.coffee
+      owner=chatops
+      group=chatops
+      mode=0755
+

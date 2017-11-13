@@ -1,0 +1,6 @@
+---
+
+- hosts: UC1T3NCOPS-G01
+  tasks:
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service

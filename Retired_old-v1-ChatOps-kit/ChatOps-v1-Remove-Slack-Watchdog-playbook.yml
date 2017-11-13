@@ -1,0 +1,28 @@
+---
+
+#- name: Remove crontab entry for Slack connector watchdog on ChatOps Global servers
+#  hosts: ChatOpsGlobal
+#  gather_facts: False
+#  tasks:
+#  - cron:
+#      name: "Add /opt/watchdog/slack-adapter-watchdog.sh to test for Slack connection."
+#      state: "absent"
+#
+#
+- name: Remove crontab entry for Slack connector watchdog on ChatOps Satellite servers
+  hosts: ChatOpsSatellite
+  gather_facts: False
+  tasks:
+  - cron:
+      name: "Add /opt/watchdog/slack-adapter-watchdog.sh to test for Slack connection."
+      state: "absent"
+
+
+#  - cron:
+#      name: "Remove /opt/watchdog/slack-adapter-watchdog.sh to test for Slack connection."
+#      state: "absent"
+#
+#  - name: "DEL /opt/watchdog directory"
+#    file:
+#      path: /opt/watchdog
+#      state: absent

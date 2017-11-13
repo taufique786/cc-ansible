@@ -1,0 +1,55 @@
+---
+
+# Reboot all Customer Care NOC Boxes - Ignore any errors and just do it!
+- name: Reboot CustomerCareNocBox
+  hosts: CustomerCareNocBox
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  ignore_errors: yes
+  force_handlers: True
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: yes
+    winreboot_cooldown_period: 10
+    winreboot_winrm_delay: 60
+    winreboot_winrm_retries: 2
+
+# Download the specified (via --extra-vars "RELEASE=x.y.z" ) release from GitHub https://github.com/Tier3/toolbox
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - host_vars/default.yml
+  tasks:
+  - name: Delete any previously extracted toolbox from /tmp/toolbox/
+    file: path=/tmp/toolbox/ state=absent
+  - name: Download the latest toolbox release from Tier3 private GitHub
+    get_url:
+      url=https://github.com/Tier3/toolbox/archive/{{RELEASE}}.zip
+      validate_certs=no
+      force_basic_auth=yes
+      url_username={{github_ansible_url_username}}
+      url_password={{github_ansible_url_password}}
+      dest=/tmp/toolbox.zip
+      force=yes
+      mode=0644
+  - name: Unzip /tmp/toolbox.zip to /tmp/toolbox/
+    raw: /usr/bin/rm -rf /tmp/toolbox/; /usr/bin/unzip /tmp/toolbox.zip -d /tmp/; /usr/bin/mv /tmp/toolbox-{{RELEASE}}/ /tmp/toolbox/
+
+# Deploy the toolbox to each server
+- name: Deploy the latest toolbox to CustomerCareNocBox
+  hosts: CustomerCareNocBox
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Delete E:\Toolbox from all CustomerCareNocBox
+    win_file: path=E:\Toolbox state=absent
+  - name: Create E:\Toolbox directory on CustomerCareNocBox
+    win_file: path=E:\Toolbox state=directory
+  - name: Copy toolbox from /tmp/toolbox/ to CustomerCareNocBox E:\Toolbox\
+    win_copy:
+      src=/tmp/toolbox/
+      dest=E:/Toolbox/
+

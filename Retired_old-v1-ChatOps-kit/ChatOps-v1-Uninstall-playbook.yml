@@ -1,0 +1,52 @@
+---
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Uninstall on RHEL7x
+  hosts: ChatOpsSatellite
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# service - Manage services
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Disable chatops.service service
+    service:
+      name: chatops.service
+      enabled: no
+      state: stopped
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+# /opt/chatops
+  - name: Delete directory /opt/chatops
+    file:
+      path: /opt/chatops
+      state: absent
+
+# /etc/systemd/system/chatops.service
+  - name: Delete /etc/systemd/system/chatops.service
+    file:
+      path: /etc/systemd/system/chatops.service
+      state: absent
+
+# /opt/chatops
+  - name: Delete directory /opt/rh
+    file:
+      path: /opt/rh
+      state: absent
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: systemctl daemon-reload
+    shell: systemctl daemon-reload

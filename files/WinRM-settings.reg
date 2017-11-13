@@ -1,0 +1,19 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Policies\Microsoft\Windows\WinRM\Service\WinRS]
+"MaxProcessesPerShell"=dword:00000064
+"MaxShellsPerUser"=dword:00000019
+"ShellTimeOut"=dword:006ddd00
+"IdleTimeout"=dword:02255100
+"MaxConcurrentUsers"=dword:00000032
+"AllowRemoteShellAccess"=dword:00000001
+"MaxMemoryPerShellMB"=dword:00000800
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service\WinRS]
+"MaxProcessesPerShell"=dword:00000064
+"MaxShellsPerUser"=dword:00000019
+"ShellTimeOut"=dword:006ddd00
+"IdleTimeout"=dword:02255100
+"MaxConcurrentUsers"=dword:00000032
+"AllowRemoteShellAccess"=dword:00000001
+"MaxMemoryPerShellMB"=dword:00000800

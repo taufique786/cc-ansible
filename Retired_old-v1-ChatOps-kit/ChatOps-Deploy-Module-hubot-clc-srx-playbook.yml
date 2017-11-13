@@ -1,0 +1,18 @@
+---
+
+- hosts: ChatOpsSatellite
+  tasks:
+#  - name: Install oniguruma and jq
+#    yum: name=oniguruma state=present
+#    yum: name=jq state=present
+#
+#  - name: Install node-slack-upload module
+#    shell: cd /opt/chatops; /usr/local/bin/npm install node-slack-upload --save
+#
+  - name: Install hubot-clc-srx from our Registry
+    shell: cd /opt/chatops; /usr/local/bin/npm install hubot-clc-srx --save
+
+#  - name: Copy Alice SRX files from hubot-clc-srx module to SRXs in datacenter
+#    command: /opt/chatops/node_modules/hubot-clc-srx/shell/copy-files-to-srx.sh
+
+# It is generally recommended to restart the chatops service after deploying this.

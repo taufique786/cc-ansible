@@ -1,0 +1,1 @@
+Get-ItemProperty "HKLM:\Software\Microsoft\ServerManager" | select @{n='Computer';e={$env:computername}},DoNotOpenServerManagerAtLogon,Pspath | convertto-json

@@ -1,0 +1,1 @@
+Get-ItemProperty "HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS" | select Pspath,IdleTimeout,MaxShellsPerUser,MaxProcessesPerShell,MaxShellRunTime,MaxConcurrentUsers,MaxMemoryPerShellMB,AllowRemoteShellAccess | convertto-json

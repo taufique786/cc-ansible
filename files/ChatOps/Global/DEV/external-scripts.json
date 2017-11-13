@@ -1,0 +1,11 @@
+[
+  "cc-hubot-help",
+  "cc-hubot-forecast",
+  "cc-global-subscriber",
+  "hubot-redis-brain",
+  "hubot-auth",
+  "hubot-clc-ansible",
+  "hubot-clc-dispatcher",
+  "hubot-clc-zendesk",
+  "hubot-clc-zenoss"
+]

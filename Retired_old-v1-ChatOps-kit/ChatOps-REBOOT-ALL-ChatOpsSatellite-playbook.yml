@@ -1,0 +1,9 @@
+---
+
+- hosts: ChatOpsSatellite
+  gather_facts: false
+  ignore_errors: yes
+  force_handlers: True
+  tasks:
+  - name: Reboot all ChatOpsSatellite
+    raw: reboot 

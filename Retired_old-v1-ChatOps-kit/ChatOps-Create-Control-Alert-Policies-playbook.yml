@@ -1,0 +1,53 @@
+---
+# This playbook is used to create or modify Control based alert policies. Please update variables accordingly.
+- name: 'Create Control Alert Policies for ChatOps'
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars_files:
+    - group_vars/ChatOpsAlertsPolicies.yml
+
+  tasks:
+
+  - name: 'Create an Alert Policy for disk above {{disk_threshold}}% for {{disk_duration}}'
+    clc_alert_policy:
+      alias: "{{account_alias}}"
+      name: 'ChatOps Alert Policy for disk > {{disk_threshold}}% for {{disk_duration}}'
+      alert_recipients: "{{recipient}}"
+      metric: 'disk'
+      duration: "{{disk_duration}}"
+      threshold: "{{disk_threshold}}"
+      state: present
+#    register: policy
+
+#  - name: debug
+#    debug: var=policy
+
+  - name: 'Create an Alert Policy for memory above {{memory_threshold}}% for {{memory_duration}}'
+    clc_alert_policy:
+      alias: "{{account_alias}}"
+      name: 'ChatOps Alert Policy for memory > {{memory_threshold}}% for {{memory_duration}}'
+      alert_recipients: "{{recipient}}"
+      metric: 'memory'
+      duration: "{{memory_duration}}"
+      threshold: "{{memory_threshold}}"
+      state: present
+#    register: policy
+
+#  - name: debug
+#    debug: var=policy
+
+  - name: 'Create an Alert Policy for cpu above {{cpu_threshold}}% for {{cpu_duration}}'
+    clc_alert_policy:
+      alias: "{{account_alias}}"
+      name: 'ChatOps Alert Policy for cpu > {{cpu_threshold}}% for {{cpu_duration}}'
+      alert_recipients: "{{recipient}}"
+      metric: 'cpu'
+      duration: "{{cpu_duration}}"
+      threshold: "{{cpu_threshold}}"
+      state: present
+#    register: policy
+
+#  - name: debug
+#    debug: var=policy
+

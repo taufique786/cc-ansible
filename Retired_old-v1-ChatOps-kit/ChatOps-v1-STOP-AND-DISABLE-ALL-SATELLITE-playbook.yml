@@ -1,0 +1,10 @@
+---
+
+- hosts: ChatOpsSatellite
+  tasks:
+
+  - name: Stop chatops.service
+    raw: /usr/bin/systemctl stop chatops.service
+
+  - name: Disable chatops.service
+    raw: /usr/bin/systemctl disable chatops.service

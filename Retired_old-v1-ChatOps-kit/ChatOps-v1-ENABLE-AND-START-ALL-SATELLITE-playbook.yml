@@ -1,0 +1,13 @@
+---
+
+- hosts: ChatOpsSatellite
+  tasks:
+
+  - name: systemctl daemon-reload
+    raw: systemctl daemon-reload
+
+  - name: systemctl enable chatops.service
+    raw: systemctl enable chatops.service
+
+  - name: systemctl start chatops.service
+    raw: systemctl start chatops.service

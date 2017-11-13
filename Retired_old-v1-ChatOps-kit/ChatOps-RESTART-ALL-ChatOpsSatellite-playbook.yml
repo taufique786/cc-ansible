@@ -1,0 +1,6 @@
+---
+
+- hosts: ChatOpsSatellite
+  tasks:
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service

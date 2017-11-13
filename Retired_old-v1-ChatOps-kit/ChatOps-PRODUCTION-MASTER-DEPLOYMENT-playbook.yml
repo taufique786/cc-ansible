@@ -1,0 +1,309 @@
+---
+
+- hosts: UC1T3NCOPS-G01 
+  tasks:
+  - name: Git clone Tier3/CLC_ChatOps to pull down latest from GitHub 
+    git:
+      repo=ssh://cc-ansible@github.com/Tier3/CC-Ansible.git
+      dest=/etc/ansible
+      key_file=/root/.ssh/id_rsa
+      force=yes
+      
+- hosts: VA1T3NCOPS-D01 
+  tasks:
+  - name: Delete the current file hubot-clc-diags.js in /opt/chatops/scripts
+    raw: /usr/bin/rm -f /opt/chatops/scripts/hubot-clc-diags.js
+  - name: Copy the updated files/CC_ChatOps_Development/external-scripts.json to /opt/chatops/external-scripts.json
+    copy:
+      src=files/CC_ChatOps_Development/external-scripts.json
+      dest=/opt/chatops/external-scripts.json
+      owner=chatops
+      group=chatops
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Development/scripts/hubot-clc-diags.js to /opt/chatops/scripts/hubot-clc-diags.js
+    copy:
+      src=files/CC_ChatOps_Development/scripts/hubot-clc-diags.js
+      dest=/opt/chatops/scripts/hubot-clc-diags.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Install the latest version of jwhois
+    yum: name=jwhois state=latest
+  - name: Install the latest version of geoip
+    yum: name=geoip state=latest
+  - name: Include chatops.service playbook
+    include: ChatOps-Deploy-Global-chatops.service-playbook.yml
+    include: ChatOps-Deploy-Satellite-chatops.service-playbook.yml
+
+
+- hosts: ChatOpsGlobal
+  tasks:
+  - name: Delete the current file hubot-clc-diags.js in /opt/chatops/scripts
+    raw: /usr/bin/rm -f /opt/chatops/scripts/hubot-clc-diags.js
+  - name: Delete the current file hubot-clc-shift.js in /opt/chatops/scripts
+    raw: /usr/bin/rm -f /opt/chatops/scripts/hubot-clc-shift.js
+  - name: Fill in the variables and copy templates/rsyslog.conf to remote /etc/rsyslog.conf
+    template:
+      src=templates/rsyslog.conf
+      dest=/etc/rsyslog.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Global/external-scripts.json to /opt/chatops/external-scripts.json
+    copy:
+      src=files/CC_ChatOps_Global/external-scripts.json
+      dest=/opt/chatops/external-scripts.json
+      owner=chatops
+      group=chatops
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Global/scripts/hubot-clc-diags.js to /opt/chatops/scripts/hubot-clc-diags.js
+    copy:
+      src=files/CC_ChatOps_Global/scripts/hubot-clc-diags.js
+      dest=/opt/chatops/scripts/hubot-clc-diags.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Copy the updated files/CC_ChatOps_Global/scripts/hubot-clc-shift.js to /opt/chatops/scripts/hubot-clc-shift.js
+    copy:
+      src=files/CC_ChatOps_Global/scripts/hubot-clc-shift.js
+      dest=/opt/chatops/scripts/hubot-clc-shift.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Copy the updated files/CC_ChatOps_Global/scripts/hubot-clc-help.js to /opt/chatops/scripts/hubot-clc-help.js
+    copy:
+      src=files/CC_ChatOps_Global/scripts/hubot-clc-help.js
+      dest=/opt/chatops/scripts/hubot-clc-help.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Copy the updated files/CC_ChatOps_Global/node_modules/hubot-help/src/help.coffee to /opt/chatops/node_modules/hubot-help/src/help.coffee 
+    copy:
+      src=files/CC_ChatOps_Global/node_modules/hubot-help/src/help.coffee
+      dest=/opt/chatops/node_modules/hubot-help/src/help.coffee
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Delete the resolv.conf
+    raw: /usr/bin/rm -rf /etc/resolv.conf
+  - name: Set the MGMT DNS resolv.conf
+    template:
+      src=templates/MGMT_resolv.conf
+      dest=/etc/resolv.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Install the latest version of jwhois
+    yum: name=jwhois state=latest
+  - name: Install the latest version of geoip
+    yum: name=geoip state=latest
+  - name: Set NPM Registry to our Private Sinopia Server
+    raw: npm set registry "http://npm.chatops.t3n.dom:4873"
+  - name: Install hubot-clc-zendesk from our Registry
+    raw: cd /opt/chatops; /usr/local/bin/npm install hubot-clc-zendesk --save
+  - name: Install the latest version of expect
+    yum: name=expect state=latest
+  - name: Install the latest version of sshpass
+    yum: name=sshpass state=latest
+  - name: Include chatops.service playbook
+    include: ChatOps-Deploy-Global-chatops.service-playbook.yml
+    include: ChatOps-Deploy-Satellite-chatops.service-playbook.yml
+
+- hosts: ChatOpsSatellite
+  tasks:
+  - name: Delete the current file hubot-clc-diags.js in /opt/chatops/scripts
+    raw: /usr/bin/rm -f /opt/chatops/scripts/hubot-clc-diags.js
+  - name: Fill in the variables and copy templates/rsyslog.conf to remote /etc/rsyslog.conf
+    template:
+      src=templates/rsyslog.conf
+      dest=/etc/rsyslog.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Satellite/external-scripts.json to /opt/chatops/external-scripts.json
+    copy:
+      src=files/CC_ChatOps_Satellite/external-scripts.json
+      dest=/opt/chatops/external-scripts.json
+      owner=chatops
+      group=chatops
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Satellite/scripts/hubot-clc-diags.js to /opt/chatops/scripts/hubot-clc-diags.js
+    copy:
+      src=files/CC_ChatOps_Satellite/scripts/hubot-clc-diags.js
+      dest=/opt/chatops/scripts/hubot-clc-diags.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Copy the updated files/CC_ChatOps_Satellite/scripts/hubot-clc-sat-mtr.js to /opt/chatops/scripts/hubot-clc-sat-mtr.js
+    copy:
+      src=files/CC_ChatOps_Satellite/scripts/hubot-clc-sat-mtr.js
+      dest=/opt/chatops/scripts/hubot-clc-sat-mtr.js
+      owner=chatops
+      group=chatops
+      mode=0755
+  - name: Delete the resolv.conf
+    raw: /usr/bin/rm -rf /etc/resolv.conf
+  - name: Set the MGMT DNS resolv.conf
+    template:
+      src=templates/MGMT_resolv.conf
+      dest=/etc/resolv.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Install the latest version of jwhois
+    yum: name=jwhois state=latest
+  - name: Install the latest version of geoip
+    yum: name=geoip state=latest
+  - name: Set NPM Registry to our Private Sinopia Server
+    raw: npm set registry "http://npm.chatops.t3n.dom:4873"
+  - name: Install the latest version of expect
+    yum: name=expect state=latest
+  - name: Install the latest version of sshpass
+    yum: name=sshpass state=latest
+  - name: Install hubot-clc-srx from our Registry
+    raw: cd /opt/chatops; /usr/local/bin/npm install hubot-clc-srx --save
+  - name: Include chatops.service playbook
+    include: ChatOps-Deploy-Global-chatops.service-playbook.yml
+    include: ChatOps-Deploy-Satellite-chatops.service-playbook.yml
+
+- hosts: ChatOpsDevelopment
+  tasks:
+  - name: Delete the resolv.conf
+    raw: /usr/bin/rm -rf /etc/resolv.conf
+  - name: Set the MGMT DNS resolv.conf
+    template:
+      src=templates/MGMT_resolv.conf
+      dest=/etc/resolv.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Fill in the variables and copy templates/rsyslog.conf to remote /etc/rsyslog.conf
+    template:
+      src=templates/rsyslog.conf
+      dest=/etc/rsyslog.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Set NPM Registry to our Private Sinopia Server
+    raw: npm set registry "http://npm.chatops.t3n.dom:4873"
+  - name: Install the latest version of expect
+    yum: name=expect state=latest
+  - name: Install the latest version of sshpass
+    yum: name=sshpass state=latest
+
+- hosts: VA1T3NCOPS-G01
+  tasks:
+  - name: Delete the resolv.conf
+    raw: /usr/bin/rm -rf /etc/resolv.conf
+  - name: Set the MGMT DNS resolv.conf
+    template:
+      src=templates/MGMT_resolv.conf
+      dest=/etc/resolv.conf
+      owner=root
+      group=root
+      mode=0644
+
+- hosts: VA1T3NCOPS-S01
+  tasks:
+  - name: Install hubot-clc-zenoss from our Registry
+    raw: cd /opt/chatops; /usr/local/bin/npm install hubot-clc-zenoss --save
+  - name: Copy the updated files/VA1T3NCOPS-S01/external-scripts.json to /opt/chatops/external-scripts.json
+    copy:
+      src=files/VA1T3NCOPS-S01/external-scripts.json
+      dest=/opt/chatops/external-scripts.json
+      owner=chatops
+      group=chatops
+      mode=0644
+
+- hosts: GB3T3NCOPS-G01
+  tasks:
+  - name: Stopping chatops.service in GB3 Global for now!
+    raw: /usr/bin/systemctl stop chatops.service
+  - name: Disabling GB3 Global we don't want two globals active and both answering!
+    service: name=chatops.service enabled=no
+
+- hosts: VA1T3NCOPS-D01 
+  tasks:
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service
+
+- hosts: ChatOpsGlobal
+  tasks:
+  - name: Restart rsyslog
+    service: name=rsyslog state=restarted
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service
+
+- hosts: GB3T3NCOPS-G01
+  tasks:
+  - name: Stopping chatops.service in GB3 Global for now!
+    raw: /usr/bin/systemctl stop chatops.service
+
+- hosts: ChatOpsSatellite
+  tasks:
+  - name: Restart rsyslog
+    service: name=rsyslog state=restarted
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service
+
+- hosts: ChatOpsDevelopment
+  tasks:
+  - name: Restart rsyslog
+    service: name=rsyslog state=restarted
+
+- hosts: UC1T3NCOPS-G01
+  tasks:
+  - name: Update to the latest hubot-clc-ansible module
+    raw: cd /opt/chatops/; /usr/local/bin/npm install hubot-clc-ansible --save 
+  - name: Restart chatops.service
+    raw: /usr/bin/systemctl restart chatops.service
+
+- name: Install crontab entry for Slack connector watchdog on ChatOps Global servers
+  hosts: ChatOpsGlobal
+  gather_facts: False
+  tasks:
+  - name: "Add /opt/watchdog directory"
+    file:
+      path: /opt/watchdog
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+  - name: "Install watchdog script"
+    copy:
+      src: files/watchdog/slack-adapter-watchdog.sh
+      dest: /opt/watchdog/slack-adapter-watchdog.sh
+      owner: root
+      group: root
+      mode: 0744
+  - cron:
+      name: "Add /opt/watchdog/slack-adapter-watchdog.sh to test for Slack connection."
+      minute: "0,5,10,15,20,25,30,35,40,45,50,55"
+      job: "/opt/watchdog/slack-adapter-watchdog.sh > /dev/null 2>&1"
+      state: "present"
+
+- name: Install crontab entry for Slack connector watchdog on ChatOps Satellite servers
+  hosts: ChatOpsSatellite
+  gather_facts: False
+  tasks:
+  - name: "Add /opt/watchdog directory"
+    file:
+      path: /opt/watchdog
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+  - name: "Install watchdog script"
+    copy:
+      src: files/watchdog/slack-adapter-watchdog.sh
+      dest: /opt/watchdog/slack-adapter-watchdog.sh
+      owner: root
+      group: root
+      mode: 0744
+  - cron:
+      name: "Add /opt/watchdog/slack-adapter-watchdog.sh to test for Slack connection."
+      minute: "0,5,10,15,20,25,30,35,40,45,50,55"
+      job: "/opt/watchdog/slack-adapter-watchdog.sh > /dev/null 2>&1"
+      state: "present"
+
+

@@ -1,0 +1,7 @@
+[
+  "hubot-redis-brain",
+  "hubot-auth",
+  "hubot-help",
+  "hubot-clc-ansible",
+  "hubot-clc-zendesk"
+]

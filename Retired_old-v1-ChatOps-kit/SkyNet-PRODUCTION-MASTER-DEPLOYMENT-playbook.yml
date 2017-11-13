@@ -1,0 +1,113 @@
+---
+
+- hosts: UC1T3NCOPS-G01 
+  tasks:
+  - name: Git clone Tier3/CLC_ChatOps to pull down latest from GitHub 
+    git:
+      repo=ssh://cc-ansible@github.com/Tier3/CC-Ansible.git
+      dest=/etc/ansible
+      key_file=/root/.ssh/id_rsa
+      force=yes
+
+- hosts: ChatOpsGlobal 
+  tasks:
+  - name: Stop skynet.service
+    raw: /usr/bin/systemctl stop skynet.service
+  - name: Disable skynet.service
+    raw: /usr/bin/systemctl disable skynet.service
+  - name: Delete the current symbolic link skynet.service in /etc/systemd/system/
+    raw: /usr/bin/rm -f /etc/systemd/system/skynet.service
+  - name: Delete the current file skynet.service in /opt/skynet/
+    raw: /usr/bin/rm -f /opt/skynet/skynet.service
+  - name: Delete the current file hubot-clc-diags.js in /opt/skynet/scripts
+    raw: /usr/bin/rm -f /opt/skynet/scripts/hubot-clc-diags.js
+  - name: Fill in the variables and copy templates/skynet.service to remote /etc/systemd/system/skynet.service
+    template:
+      src=templates/skynet.service
+      dest=/etc/systemd/system/skynet.service
+      owner=root
+      group=root
+      mode=0755
+  - name: Fill in the variables and copy templates/rsyslog.conf to remote /etc/rsyslog.conf
+    template:
+      src=templates/rsyslog.conf
+      dest=/etc/rsyslog.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Global_Skynet/external-scripts.json to /opt/skynet/external-scripts.json
+    copy:
+      src=files/CC_ChatOps_Global_Skynet/external-scripts.json
+      dest=/opt/skynet/external-scripts.json
+      owner=skynet
+      group=skynet
+      mode=0644
+  - name: Copy the updated files/CC_ChatOps_Global/scripts/hubot-clc-diags.js to /opt/skynet/scripts/hubot-clc-diags.js
+    copy:
+      src=files/CC_ChatOps_Global/scripts/hubot-clc-diags.js
+      dest=/opt/skynet/scripts/hubot-clc-diags.js
+      owner=skynet
+      group=skynet
+      mode=0755
+  - name: Delete the resolv.conf
+    raw: /usr/bin/rm -rf /etc/resolv.conf
+  - name: Set the MGMT DNS resolv.conf
+    template:
+      src=templates/MGMT_resolv.conf
+      dest=/etc/resolv.conf
+      owner=root
+      group=root
+      mode=0644
+  - name: Create symbolic /opt/skynet/skynet.service to /etc/systemd/system/skynet.service
+    raw: ln -s /etc/systemd/system/skynet.service /opt/skynet/skynet.service
+  - name: Register and enable the skynet.service
+    service: name=skynet.service pattern=/etc/systemd/system/skynet.service enabled=yes
+  - name: Reload systemctl
+    raw: /usr/bin/systemctl daemon-reload
+  - name: Install the latest version of jwhois
+    yum: name=jwhois state=latest
+  - name: Install the latest version of geoip
+    yum: name=geoip state=latest
+  - name: Start the skynet.service
+    service: name=skynet.service state=started
+  - name: Set NPM Registry to our Private Sinopia Server
+    raw: npm set registry "http://npm.chatops.t3n.dom:4873"
+  - name: Install the latest version of expect
+    yum: name=expect state=latest
+  - name: Install the latest version of sshpass
+    yum: name=sshpass state=latest
+  - name: Install hubot-conversation from our Registry - We have modified the original
+    raw: cd /opt/skynet; /usr/local/bin/npm install hubot-conversation --save
+  - name: Install moment from our Registry
+    raw: cd /opt/skynet; /usr/local/bin/npm install moment --save
+  - name: Install hubot-clc-skynet from our Registry
+    raw: cd /opt/skynet; /usr/local/bin/npm install hubot-clc-skynet --save
+  - name: Delete the current file constants.js in /opt/skynet/node_modules/hubot-conversation/lib
+    raw: /usr/bin/rm -f /opt/skynet/node_modules/hubot-conversation/lib/constants.js
+  - name: Copy the updated files/CC_ChatOps_Global_Skynet/constants.js to /opt/skynet/node_modules/hubot-conversation/lib/constants.js
+    copy:
+      src=files/CC_ChatOps_Global_Skynet/constants.js
+      dest=/opt/skynet/node_modules/hubot-conversation/lib/constants.js
+      owner=skynet
+      group=skynet
+      mode=0644
+    
+- hosts: GB3T3NCOPS-G01 
+  tasks:
+  - name: Stopping skynet.service in GB3 Global for now!
+    raw: /usr/bin/systemctl stop skynet.service
+  - name: Disabling GB3 Global we don't want two globals active and both answering!
+    service: name=skynet.service enabled=no
+    
+- hosts: ChatOpsGlobal
+  tasks:
+  - name: Restart rsyslog
+    service: name=rsyslog state=restarted
+  - name: Restart skynet.service
+    raw: /usr/bin/systemctl restart skynet.service
+    
+- hosts: GB3T3NCOPS-G01
+  tasks:
+  - name: Stopping skynet.service in GB3 Global for now!
+    raw: /usr/bin/systemctl stop skynet.service
+    

@@ -1,0 +1,47 @@
+---
+# This playbook is used to apply existing Control based alert policies to all servers residiing in one or more groups.
+- name: 'Apply alert polices to ChatOps'
+  hosts: localhost
+  gather_facts: False
+  connection: local
+  vars_files:
+    - group_vars/ChatOpsAlertsPolicies.yml
+
+  tasks:
+
+  - name: Apply Control Alert Policy for disk usage on ChatOps servers'
+    clc_modify_server:
+      server_ids: "{{ item }}"
+      alert_policy_name: 'ChatOps Alert Policy for disk > {{disk_threshold}}% for {{disk_duration}}'
+      state: present
+    with_items:
+    - "{{ groups['ChatOpsGlobal']}}"
+    - "{{ groups['ChatOpsSatellite']}}"
+    - "{{ groups['ChatOpsNpm']}}"
+#    register: clc_svr_var
+#  - debug: var=clc_svr_var
+
+  - name: Apply Control Alert Policy for memory usage on ChatOps servers'
+    clc_modify_server:
+      server_ids: "{{ item }}"
+      alert_policy_name: 'ChatOps Alert Policy for memory > {{memory_threshold}}% for {{memory_duration}}'
+      state: present
+    with_items:
+    - "{{ groups['ChatOpsGlobal']}}"
+    - "{{ groups['ChatOpsSatellite']}}"
+    - "{{ groups['ChatOpsNpm']}}"
+#    register: clc_svr_var
+#  - debug: var=clc_svr_var
+
+  - name: Apply Control Alert Policy for cpu usage on ChatOps servers'
+    clc_modify_server:
+      server_ids: "{{ item }}"
+      alert_policy_name: 'ChatOps Alert Policy for cpu > {{cpu_threshold}}% for {{cpu_duration}}'
+      state: present
+    with_items:
+    - "{{ groups['ChatOpsGlobal']}}"
+    - "{{ groups['ChatOpsSatellite']}}"
+    - "{{ groups['ChatOpsNpm']}}"
+#    register: clc_svr_var
+#  - debug: var=clc_svr_var
+

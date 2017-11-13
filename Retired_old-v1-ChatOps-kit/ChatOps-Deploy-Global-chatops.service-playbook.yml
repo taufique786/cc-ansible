@@ -1,0 +1,47 @@
+---
+
+
+###############################
+# Perform on the Global servers
+###############################
+- hosts: ChatOpsGlobal 
+tasks:
+
+# Remove existing chatops.service
+- name: Stop chatops.service
+raw: /usr/bin/systemctl stop chatops.service
+- name: Disable chatops.service
+raw: /usr/bin/systemctl disable chatops.service
+- name: Delete the current symbolic link chatops.service in /opt/chatops
+raw: /usr/bin/rm -f /opt/chatops/chatops.service
+- name: Delete the current file chatops.service in /etc/systemd/system/
+raw: /usr/bin/rm -f /etc/systemd/system/chatops.service
+
+# Create the new file from template
+- name: Fill in the variables and copy templates/chatops.service to remote /etc/systemd/system/chatops.service
+template:
+src=templates/chatops.service
+dest=/etc/systemd/system/chatops.service
+owner=root
+group=root
+mode=0755
+- name: Create symbolic /opt/chatops/chatops.service to /etc/systemd/system/chatops.service
+raw: ln -s /etc/systemd/system/chatops.service /opt/chatops/chatops.service
+- name: Register and enable the chatops.service
+service: name=chatops.service pattern=/etc/systemd/system/chatops.service enabled=yes
+- name: Reload systemctl
+raw: /usr/bin/systemctl daemon-reload
+- name: Start the chatops.service
+service: name=chatops.service state=started
+
+
+##############################
+# Perform on GB3 Global server
+##############################
+- hosts: GB3T3NCOPS-G01
+  tasks:
+  - name: Stopping chatops.service in GB3 Global for now!
+    raw: /usr/bin/systemctl stop chatops.service
+  - name: Disabling GB3 Global we don't want two globals active and both answering!
+    service: name=chatops.service enabled=no
+
