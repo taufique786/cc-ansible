@@ -1,0 +1,7 @@
+poshSource: 'https://github.com/darkoperator/Posh-SSH/archive/master.zip'
+poshZip: 'C:\Windows\Temp\Posh-SSH.zip'
+psModules: 'C:\Program Files\WindowsPowerShell\Modules'
+poshTemp: 'C:\Program Files\WindowsPowerShell\Modules\Posh-SSH-master'
+poshFinal: 'C:\Program Files\WindowsPowerShell\Modules\Posh-SSH'
+defaultcustomercarenocboxgroup: CustomerCareNocBoxNextGen
+

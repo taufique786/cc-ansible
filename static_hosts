@@ -1,0 +1,72 @@
+# This file duplicates some data provided by dynamic inventory. Officially, you should use dynamic 
+# inventory for the latest up-to-date list but pulling host information back from the T3N account 
+# will add almost 4 minutes to the playbook run time.  This is provided as a shortcut.
+#
+# To use this file, add the -i <path_to_this_file> option to your ansible command.  For example:
+#
+#  ansible -i /etc/ansible/static_hosts ChatOpsGlobal -m ping
+#  ansible -i /etc/ansible/static_hosts VA1T3NCOPS-D03 -m ping
+#  ansible -i /etc/ansible/static_hosts all -m ping
+#  
+#
+
+[ChatOpsDevelopment]
+VA1T3NCOPS-D01 ansible_host=10.129.15.84
+VA1T3NCOPS-D02 ansible_host=10.129.15.87
+VA1T3NCOPS-D03 ansible_host=10.129.15.88
+VA1T3NCOPS-D04 ansible_host=10.129.15.65
+VA1T3NCOPS-D05 ansible_host=10.129.15.25
+VA1T3NCOPS-D06 ansible_host=10.129.15.66
+
+[ChatOpsGlobalDev]
+VA1T3ACOPS-D01 ansible_host=10.125.194.12
+VA1T3ACOPS-D02 ansible_host=10.125.194.13
+VA1T3ACOPS-D03 ansible_host=10.125.194.14
+VA1T3ACOPS-D04 ansible_host=10.125.194.15
+VA1T3ACOPS-D05 ansible_host=10.125.194.16
+VA1T3ACOPS-D06 ansible_host=10.125.194.17
+
+[ChatOpsGlobal]
+GB3T3NCOPS-G01 ansible_host=10.109.15.24
+UC1T3NCOPS-G01 ansible_host=10.124.15.49
+UC1T3ACOPS-G01 ansible_host=10.122.10.12
+UC1T3ACOPS-G02 ansible_host=10.122.10.13
+UC1T3ACOPS-G03 ansible_host=10.122.10.14
+GB3T3ACOPS-G01 ansible_host=10.105.224.12
+GB3T3ACOPS-G02 ansible_host=10.105.224.13
+GB3T3ACOPS-G03 ansible_host=10.105.224.14
+
+[ChatOpsSatellite]
+AU1T3NCOPS-S01 ansible_host=10.164.15.99
+CA1T3NCOPS-S01 ansible_host=10.54.10.103
+CA2T3NCOPS-S01 ansible_host=10.59.10.114
+CA3T3NCOPS-S01 ansible_host=10.104.15.112
+DE1T3NCOPS-S01 ansible_host=10.114.10.183
+DE3T3NCOPS-S01 ansible_host=10.186.15.21
+GB1T3NCOPS-S01 ansible_host=10.64.10.101
+GB3T3NCOPS-S01 ansible_host=10.109.15.14
+IL1T3NCOPS-S01 ansible_host=10.98.100.31
+NE1T3NCOPS-S01 ansible_host=10.239.15.15
+NY1T3NCOPS-S01 ansible_host=10.78.10.197
+SG1T3NCOPS-S01 ansible_host=10.134.15.198
+UC1T3NCOPS-S01 ansible_host=10.124.15.47
+UT1T3NCOPS-S01 ansible_host=10.98.10.183
+VA1T3NCOPS-S01 ansible_host=10.129.15.82
+VA2T3NCOPS-S01 ansible_host=10.170.15.222
+WA1T3NCOPS-S01 ansible_host=10.88.10.213
+
+[ChatOpsLB]
+GB3T3NCOPS-L01 ansible_host=10.109.15.12
+UC1T3NCOPS-L01 ansible_host=10.124.15.14
+
+[ChatOpsNpm]
+VA1T3NCOPS-G01 ansible_host=10.129.15.83
+
+[ChatOpsGlobalRedis]
+UC1T3NCOPS-R01 ansible_host=10.124.15.63
+GB3T3NCOPS-R01 ansible_host=10.109.15.34
+
+[ChatOpsGlobalAnsible]
+VA1T3NCOPS-A01 ansible_host=10.129.15.61
+VA1T3ACOPS-A01 ansible_host=10.125.194.101
+
