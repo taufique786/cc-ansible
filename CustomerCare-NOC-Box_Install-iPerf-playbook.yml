@@ -1,0 +1,36 @@
+- name: Install iPerf
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  gather_facts: false
+  vars_files:
+    - group_vars/CustomerCare-NOC-Box_Install-iPerf.yml
+  
+  tasks:
+  
+    - name: Downloading '{{iperfSource}}'
+      win_get_url:
+        url: '{{iperfSource}}'
+        dest: '{{iperfZip}}'
+        force: yes
+
+    - name: Delete existing iperf install if exists - any failure here indicates the application is in use and can't be deleted'
+      win_file: path='{{iperfFinal}}' state=absent
+
+    - name: Unzip iperf to C
+      win_unzip:
+        src: '{{iperfZip}}'
+        dest: 'C:\'
+        rm: yes
+    
+    - name: Renaming '{{iperfTemp}}' to '{{iperfFinal}}'
+      raw: ren '{{iperfTemp}}' iperf
+
+    - name: Add '{{iperfFinal}}' to the PATH if it is not already present 
+      script: files/iPerf/addiPerfpath.ps1  
+
+    - name: Testing iperf
+      raw: C:\iperf\iperf3.exe -v
+      register: iperfVersion
+    
+    - name: Print iperf version
+      debug: "msg='iperf Version: {{ iperfVersion.stdout }}'"
+

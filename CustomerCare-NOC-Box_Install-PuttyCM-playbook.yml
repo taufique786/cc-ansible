@@ -1,0 +1,20 @@
+---
+
+# Deploy PuttyCM to each server 
+- name: Deploy PuttyCM to Customer Care NOC Boxes
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Create C:\PROGRA~1\PuttyCM directory if it does not exist
+    win_file:
+      path=C:\PROGRA~1\PuttyCM
+      state=directory
+
+  - name: Copy PuttyCM files from files/PuttyCM/to C:\PROGRA~1\PuttyCM\
+    win_copy:
+      src=files/PuttyCM/
+      dest=C:/PROGRA~1/PuttyCM/
+

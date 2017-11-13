@@ -1,0 +1,150 @@
+---
+
+- name: Install software and updates
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False 
+  tasks:
+  - name: Use Chocolatey to install/update 7zip 
+    win_chocolatey:
+      name: 7zip
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Chrome 
+    win_chocolatey:
+      name: googlechrome
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Filezilla 
+    win_chocolatey:
+      name: filezilla
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Firefox
+    win_chocolatey:
+      name: firefox
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update GitHub Desktop
+    win_chocolatey:
+      name: github 
+      state: present
+      upgrade: True
+      #force: True
+  - name: Use Chocolatey to install/update GnuWin 
+    win_chocolatey:
+      name: gnuwin
+      state: present
+      upgrade: True
+  - name: Add C:\GnuWin\bin to the PATH if it is not already present 
+    script: files/Gnu/addGnuWinpath.ps1
+  - name: Use Chocolatey to install/update Notepad++ 
+    win_chocolatey:
+      name: notepadplusplus
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update PingInfoView
+    win_chocolatey:
+      name: pinginfoview
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Putty
+    win_chocolatey:
+      name: putty
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update SourceTree
+    win_chocolatey:
+      name: sourcetree
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Space Sniffer
+    win_chocolatey:
+      name: spacesniffer 
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Sysinternals
+    win_chocolatey:
+      name: sysinternals
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Visual Studio Code 
+    win_chocolatey:
+      name: visualstudiocode
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update VMware vSphere Client
+    win_chocolatey:
+      name: vmwarevsphereclient
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update WinSCP 
+    win_chocolatey:
+      name: winscp
+      state: present
+      upgrade: True
+  - name: Use Chocolatey to install/update Wireshark
+    win_chocolatey:
+      name: wireshark 
+      state: present
+      upgrade: True
+
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy files/TFTPServer/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/TFTPServer/
+      dest=E:/Temp/
+  - name: Install iptel_avaya_tftp.exe on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\iptel_avaya_tftp.exe /s /q
+
+  - name: Copy files/paping/ to "{{ defaultcustomercarenocboxgroup }}" C:\Windows\System32
+    win_copy:
+      src=files/paping/
+      dest=C:/Windows/System32
+
+  - name: Copy files/snmpwalk/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/snmpwalk/
+      dest=C:/Windows/System32/
+
+  - name: Copy files/winmtr/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/winmtr/
+      dest=E:/
+
+  - name: Copy files/OneDrive/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/OneDrive/
+      dest=E:/
+  - name: Install OneDrive on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\OneDriveSetup.exe /silent
+
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy files/psget/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/psget/
+      dest=E:/Temp/
+  - name: Install PackageManagement_x64.msi on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\PackageManagement_x64.msi /q /p
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: no
+    winreboot_cooldown_period: 60
+    winreboot_winrm_delay: 30
+    winreboot_winrm_retries: 3
+

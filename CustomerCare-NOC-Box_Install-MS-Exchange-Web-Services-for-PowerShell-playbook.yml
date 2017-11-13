@@ -1,0 +1,35 @@
+---
+
+# Deploy the reqiured software for Microsoft Exchange Web Services Managed API needed for PowerShell to each server
+- name: Deploy the latest toolbox to Customer Care NOC Boxes
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+
+  - name: Delete E:\Temp directory from each server
+    win_file:
+      path=E:\Temp
+      state=absent
+
+  - name: Create E:\Temp directory on each server
+    win_file:
+      path=E:\Temp
+      state=directory
+
+  - name: Copy the install files from files/MS_Exchange_Web_Services_Manage_API/ to Customer Care NOC Boxes E:\Temp\
+    win_copy:
+      src=files/MS_Exchange_Web_Services_Manage_API/
+      dest=E:/Temp/
+
+  - name: Install EwsManagedApi.msi on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\EwsManagedApi.msi /quiet
+
+  - name: Install msoidcli_64.msi on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\msoidcli_64.msi /quiet
+
+  - name: Install AdministrationConfig-en.msi on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\AdministrationConfig-en.msi /quiet
+

@@ -1,0 +1,347 @@
+---
+
+# AU1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in AU1
+      clc_group:
+        location: 'AU1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in AU1
+      clc_group:
+        location: 'AU1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# CA1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in CA1
+      clc_group:
+        location: 'CA1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in CA1
+      clc_group:
+        location: 'CA1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# CA2
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in CA2
+      clc_group:
+        location: 'CA2'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in CA2
+      clc_group:
+        location: 'CA2'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# CA3
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in CA3
+      clc_group:
+        location: 'CA3'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in CA3
+      clc_group:
+        location: 'CA3'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# DE1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in DE1
+      clc_group:
+        location: 'DE1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in DE1
+      clc_group:
+        location: 'DE1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# GB1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in GB1
+      clc_group:
+        location: 'GB1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in GB1
+      clc_group:
+        location: 'GB1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# GB3
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in GB3
+      clc_group:
+        location: 'GB3'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in GB3
+      clc_group:
+        location: 'GB3'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# IL1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in IL1
+      clc_group:
+        location: 'IL1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in IL1
+      clc_group:
+        location: 'IL1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# NE1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in NE1
+      clc_group:
+        location: 'NE1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in NE1
+      clc_group:
+        location: 'NE1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# NY1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in NY1
+      clc_group:
+        location: 'NY1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in NY1
+      clc_group:
+        location: 'NY1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# SG1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in SG1
+      clc_group:
+        location: 'SG1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in SG1
+      clc_group:
+        location: 'SG1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# UC1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in UC1
+      clc_group:
+        location: 'UC1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in UC1
+      clc_group:
+        location: 'UC1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# UT1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in UT1
+      clc_group:
+        location: 'UT1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in UT1
+      clc_group:
+        location: 'UT1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# VA1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in VA1
+      clc_group:
+        location: 'VA1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in VA1
+      clc_group:
+        location: 'VA1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+
+# WA1
+- name: Ensure Server Groups in Control exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure top level "{{ defaultcustomercareparentgroup }}" group in Control exists in WA1
+      clc_group:
+        location: 'WA1'
+        name: "{{ defaultcustomercareparentgroup }}"
+        description: 'Customer Care'
+        state: present
+      register: clc
+    - name: Ensure "{{ defaultcustomercarenocboxgroup }}" group below "{{ defaultcustomercareparentgroup }}" in Control exists in WA1
+      clc_group:
+        location: 'WA1'
+        name: "{{ defaultcustomercarenocboxgroup }}"
+        description: 'Customer Care NOC Boxes'
+        parent: "{{ defaultcustomercareparentgroup }}"
+        state: present
+

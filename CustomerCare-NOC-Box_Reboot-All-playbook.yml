@@ -1,0 +1,18 @@
+---
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  ignore_errors: yes
+  force_handlers: True
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: yes 
+    winreboot_cooldown_period: 10 
+    winreboot_winrm_delay: 60
+    winreboot_winrm_retries: 2 
+

@@ -1,0 +1,200 @@
+---
+
+################################################################################
+#  description: Installs stunnel 5x via source for Redis Server on RHEL7x / CentOS7x
+#  usage: ansible-playbook ChatOps_PROD-SATELLITE_Install-stunnel5x-via-source-for-Redis-Server-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Install stunnel 5x via source for Redis Server on RHEL7x / CentOS7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# Install yum packages
+# REF: http://docs.ansible.com/ansible/yum_module.html
+######################################################
+
+  - name: Install Development Tools group packages
+    yum:
+      name: "@Development Tools"
+      state: present
+      # Note: Two (2) types of group lists exist "package groups" and "environment groups"
+      # Use: yum group list
+      # REF: http://docs.ansible.com/ansible/yum_module.html#notes
+
+  - name: Install OpenSSL Development package needed to compile stunnel
+    yum:
+      name: openssl-devel.x86_64
+      state: latest
+
+  - name: Install redis
+    yum:
+      name: redis
+      state: latest
+
+
+# Use the template module to populate files with data
+# REF: http://docs.ansible.com/ansible/template_module.html
+###########################################################
+
+# /etc/redis.conf
+  - name: Fill in the variables and copy templates/Redis/redis.conf.j2 to remote /etc/redis.conf
+    template:
+      src: templates/Redis/redis.conf.j2
+      dest: /etc/redis.conf
+      owner: redis
+      group: root
+      mode: 0600
+
+
+# Restart firewalld to make sure it is running OK before changing any rules
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Ensure the firewalld service is enabled and re-started before changing any rules
+    service:
+      name: firewalld
+      enabled: yes
+      state: restarted
+
+
+# Update the firewalld configuration
+# REF: http://docs.ansible.com/ansible/firewalld_module.html
+############################################################
+
+  - name: Update firewall to allow port TCP 6379 for incoming Redis connections
+    firewalld:
+      port: 6379/tcp
+      permanent: true
+      immediate: yes
+      state: enabled
+      zone: public
+
+
+# Enable and start redis
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start the redis service
+    service:
+      name: redis
+      enabled: yes
+      state: restarted
+      # Note: Verify redis via SSH command line:
+      # systemctl status redis
+
+
+# unarchive - Unpacks an archive after (optionally) copying it from the local machine
+# REF: http://docs.ansible.com/ansible/unarchive_module.html
+############################################################
+
+  - name: Download and extract the source code into /tmp/stunnel-5.x
+    unarchive:
+      src: https://www.stunnel.org/downloads/stunnel-5.41.tar.gz
+      dest: /tmp
+      copy: no
+
+
+# Execute raw command(s)
+# REF: http://docs.ansible.com/ansible/raw_module.html
+##########################################################
+
+  - name: Compile and install stunnel 5x to /usr/local/bin/stunnel
+    raw: cd /tmp/stunnel-5.41; ./configure && make install
+    # SSH comman line verification:
+    # /usr/local/bin/stunnel -version
+
+
+# Use the file module
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+# /usr/local/etc/stunnel/conf.d
+  - name: mkdir /usr/local/etc/stunnel/conf.d
+    file:
+      path: /usr/local/etc/stunnel/conf.d
+      state: directory
+      mode: 0644
+
+# /usr/local/etc/stunnel/stunnel.conf-sample
+  - name: rm /usr/local/etc/stunnel/stunnel.conf-sample
+    file:
+      path: /usr/local/etc/stunnel/stunnel.conf-sample
+      state: absent
+
+
+# Use the template module to populate files with data
+# REF: http://docs.ansible.com/ansible/template_module.html
+###########################################################
+
+# /etc/systemd/system/stunnel.service
+  - name: Fill in the variables and copy templates/stunnel/stunnel.service.j2 to remote /etc/systemd/system/stunnel.service
+    template:
+      src: templates/stunnel/stunnel.service.j2
+      dest: /etc/systemd/system/stunnel.service
+      owner: root
+      group: root
+      mode: 0644
+
+# /usr/local/etc/stunnel/stunnel.conf
+  - name: Fill in the variables and copy templates/stunnel/stunnel.conf.j2 to remote /usr/local/etc/stunnel/stunnel.conf
+    template:
+      src: templates/stunnel/stunnel.conf.j2
+      dest: /usr/local/etc/stunnel/stunnel.conf
+      owner: root
+      group: root
+      mode: 0644
+
+# /usr/local/etc/stunnel/conf.d/redis-server.conf
+  - name: Fill in the variables and copy templates/stunnel/redis-server.conf.j2 to remote /usr/local/etc/stunnel/conf.d/redis-server.conf
+    template:
+      src: templates/stunnel/redis-server.conf.j2
+      dest: /usr/local/etc/stunnel/conf.d/redis-server.conf
+      owner: root
+      group: root
+      mode: 0644
+
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /usr/local/etc/stunnel/redis-private.pem
+  - name: Copy files/stunnel/redis-private.pem to remote /usr/local/etc/stunnel/redis-private.pem
+    copy:
+      src: files/stunnel/redis-private.pem
+      dest: /usr/local/etc/stunnel/redis-private.pem
+      owner: root
+      group: root
+      mode: 0640
+
+# /usr/local/etc/stunnel/psk.txt
+  - name: Copy files/stunnel/psk.txt to remote /usr/local/etc/stunnel/psk.txt
+    copy:
+      src: files/stunnel/psk.txt
+      dest: /usr/local/etc/stunnel/psk.txt
+      owner: root
+      group: root
+      mode: 0640
+
+
+# Enable and start (or restart) stunnel
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start stunnel
+    service:
+      name: stunnel.service
+      enabled: yes
+      state: restarted
+      # Note: Verify via SSH command line:
+      # systemctl status stunnel.service

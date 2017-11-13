@@ -1,0 +1,48 @@
+---
+
+- name: Install PowerShell 5x prerequisites
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy files/psget/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/PowerShell/
+      dest=E:/Temp/
+  - name: Install PackageManagement_x64.msi on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\Win8.1AndW2K12R2-KB3134758-x64.msu /quiet
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: yes 
+    winreboot_cooldown_period: 120 
+    winreboot_winrm_delay: 240
+    winreboot_winrm_retries: 1
+
+- name: Install PowerShell 5x
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy files/psget/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/PowerShell/
+      dest=E:/Temp/
+  - name: Install PowerShell.5.0Install.msu on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\PowerShell.5.0Install.msu /quiet /norestart
+

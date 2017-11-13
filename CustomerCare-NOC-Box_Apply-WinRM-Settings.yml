@@ -1,0 +1,27 @@
+- name: Apply WinRM Settings to CC NOC Boxes
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+
+  - name: Delete E:\Temp directory from each server
+    win_file:
+      path: E:/Temp
+      state: absent
+
+  - name: Create E:\Temp directory on each server
+    win_file:
+      path: E:/Temp
+      state: directory
+
+  - name: Copy the WinRM-settings.reg to Customer Care NOC Boxes E:\Temp\
+    win_copy:
+      src: files/WinRM-settings.reg
+      dest: E:/Temp/
+
+  - name: Apply WinRM Settings
+    win_regmerge:
+      path: E:/Temp/WinRM-settings.reg
+    

@@ -1,0 +1,30 @@
+---
+- name: Remove Specific Windows Features
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  tasks:
+    - name: Define Windows Features to remove
+      set_fact: remove_these="{{ item }}"
+      with_items:
+        - RSAT-Hyper-V-Tools
+        - Failover-Clustering
+        - RSAT-Clustering
+      register: remove_these_results
+
+    - name: Set Fact and Convert definition to a variable list
+      set_fact: results="{{ remove_these_results.results | map(attribute='ansible_facts.remove_these') | list }}"
+
+    - name: Define debug
+      debug: var=results
+
+    - name: Remove the following Windows Features "{{ results }}"
+      win_feature:
+        name: "{{ results }}"
+        state: absent
+        restart: no
+        include_sub_features: yes
+        include_management_tools: yes
+

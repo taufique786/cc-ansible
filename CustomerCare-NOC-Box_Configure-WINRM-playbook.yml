@@ -1,0 +1,28 @@
+---
+  - name: Create Registry Keys
+    hosts: "{{ defaultcustomercarenocboxgroup }}"
+    vars_files:
+      - host_vars/default.yml
+    gather_facts: False
+    tasks:
+    - name: Get Registry Key Value
+      script: files/PowerShell/winRMreg.ps1
+      register: WINRM
+    - set_fact:
+        reg: "{{WINRM.stdout|from_json}}"
+    - debug: var=reg
+    - name: Set Registry Key for WINRM Idle Time Out   
+      win_regedit:
+        key: "{{item.key}}"
+        value: "{{item.value}}" 
+        data: "{{item.data}}" 
+        datatype: "{{item.datatype}}"
+      with_items:
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "MaxShellsPerUser",  data: "10", datatype: "dword"}
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "MaxProcessesPerShell", data: "100", datatype: "dword"}
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "IdleTimeout", data: "36000000", datatype: "dword"}
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "MaxShellRunTime", data: "2147483647", datatype: "dword"}
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "MaxConcurrentUsers", data: "50", datatype: "dword"}
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "MaxMemoryPerShellMB", data: "1024", datatype: "dword"}
+        - {key: 'HKLM:\Software\Policies\Microsoft\Windows\WinRM\Service\WinRS', value: "AllowRemoteShellAccess", data: "true", datatype: "string"}
+      when: reg.IdleTimeout != 36000000 or reg.MaxShellsPerUser != 10 or reg.MaxProcessesPerShell != 100 or reg.MaxShellRunTime != 2147483647 or reg.MaxConcurrentUsers != 50 or reg.MaxMemoryPerShellMB != 1024 or reg.AllowRemoteShellAccess != "true"

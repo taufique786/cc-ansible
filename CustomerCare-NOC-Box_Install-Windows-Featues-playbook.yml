@@ -1,0 +1,123 @@
+---
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: no 
+    winreboot_cooldown_period: 60
+    winreboot_winrm_delay: 30
+    winreboot_winrm_retries: 3
+
+- name: Install Windows Features
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  tasks:
+  - name: Install AS-NET-Framework 
+    win_feature:
+      name: "AS-NET-Framework"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install GPMC
+    win_feature:
+      name: "GPMC"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install NET-Framework-45-Core
+    win_feature:
+      name: "NET-Framework-45-Core"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install RDS-Licensing
+    win_feature:
+      name: "RDS-Licensing"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install RDS-RD-Server
+    win_feature:
+      name: "RDS-RD-Server"
+      state: present
+      restart: no 
+      include_sub_features: yes
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: no
+    winreboot_cooldown_period: 60
+    winreboot_winrm_delay: 30
+    winreboot_winrm_retries: 3
+
+- name: Install Windows Features
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  tasks:
+  - name: Install RSAT
+    win_feature:
+      name: "RSAT"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install Telnet-Client
+    win_feature:
+      name: "Telnet-Client"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install TFTP-Client
+    win_feature:
+      name: "TFTP-Client"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install Web-Ftp-Service
+    win_feature:
+      name: "Web-Ftp-Service"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install Windows-Server-Backup
+    win_feature:
+      name: "Windows-Server-Backup"
+      state: present
+      restart: yes
+      include_sub_features: yes
+  - name: Install XPS-Viewer
+    win_feature:
+      name: "XPS-Viewer"
+      state: present
+      restart: yes
+      include_sub_features: yes
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: no
+    winreboot_cooldown_period: 60
+    winreboot_winrm_delay: 30
+    winreboot_winrm_retries: 3
+

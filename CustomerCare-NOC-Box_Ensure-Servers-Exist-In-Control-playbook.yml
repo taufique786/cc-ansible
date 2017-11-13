@@ -1,0 +1,437 @@
+---
+
+# AU1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in AU1
+      clc_server:
+        location: AU1
+        network_id: "{{ au1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ au1_primary_dns }}"
+        secondary_dns: "{{ au1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# CA1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in CA1
+      clc_server:
+        location: CA1
+        network_id: "{{ ca1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ ca1_primary_dns }}"
+        secondary_dns: "{{ ca1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# CA2
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in CA2
+      clc_server:
+        location: CA2
+        network_id: "{{ ca2_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ ca2_primary_dns }}"
+        secondary_dns: "{{ ca2_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# CA3
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in CA3
+      clc_server:
+        location: CA3
+        network_id: "{{ ca3_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ ca3_primary_dns }}"
+        secondary_dns: "{{ ca3_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# DE1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in DE1
+      clc_server:
+        location: DE1
+        network_id: "{{ de1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ de1_primary_dns }}"
+        secondary_dns: "{{ de1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# GB1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in GB1
+      clc_server:
+        location: GB1
+        network_id: "{{ gb1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ gb1_primary_dns }}"
+        secondary_dns: "{{ gb1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# GB3
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in GB3
+      clc_server:
+        location: GB3
+        network_id: "{{ gb3_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ gb3_primary_dns }}"
+        secondary_dns: "{{ gb3_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# IL1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in IL1
+      clc_server:
+        location: IL1
+        network_id: "{{ il1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ il1_primary_dns }}"
+        secondary_dns: "{{ il1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# NE1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in NE1
+      clc_server:
+        location: NE1
+        network_id: "{{ ne1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ ne1_primary_dns }}"
+        secondary_dns: "{{ ne1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# NY1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in NY1
+      clc_server:
+        location: NY1
+        network_id: "{{ ny1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ ny1_primary_dns }}"
+        secondary_dns: "{{ ny1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# SG1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in SG1
+      clc_server:
+        location: SG1
+        network_id: "{{ sg1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ sg1_primary_dns }}"
+        secondary_dns: "{{ sg1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# UC1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in UC1
+      clc_server:
+        location: UC1
+        network_id: "{{ uc1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ uc1_primary_dns }}"
+        secondary_dns: "{{ uc1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# UT1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in UT1
+      clc_server:
+        location: UT1
+        network_id: "{{ ut1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ ut1_primary_dns }}"
+        secondary_dns: "{{ ut1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# VA1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in VA1
+      clc_server:
+        location: VA1
+        network_id: "{{ va1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ va1_primary_dns }}"
+        secondary_dns: "{{ va1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+
+# WA1
+- name: Ensure Next Generation Customer Care NOC Boxes exist in each DC
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure correct number of Next Generation Customer Care NOC Boxes exist in WA1
+      clc_server:
+        location: WA1
+        network_id: "{{ wa1_network_id }}"
+        password: "{{ defaultpassword }}"
+        name: ccnoc
+        description: 'Customer Care NOC Box'
+        template: WIN2012R2DTC-64
+        group: "{{ defaultcustomercarenocboxgroup }}"
+        count_group: "{{ defaultcustomercarenocboxgroup }}"
+        alert_policy_name: 'Alert for disk > 85% for 15 minutes'
+        exact_count: 2
+        cpu: 8
+        memory: 16
+        primary_dns: "{{ wa1_primary_dns }}"
+        secondary_dns: "{{ wa1_secondary_dns }}"
+        additional_disks:
+          - {path: e, sizeGB: 100, type: partitioned}
+        packages:
+          - { packageId: '98d7cb38-41ae-41de-b3e4-9967be006f6c', parameters: {} }
+

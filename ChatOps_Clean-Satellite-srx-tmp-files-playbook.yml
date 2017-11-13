@@ -1,0 +1,8 @@
+---
+
+- hosts: ChatOpsSatellite
+  tasks:
+#
+  - name: Clear out any tmp files from the srx kit
+    shell: rm -f /var/tmp/srx-sessions-*; rm -f /tmp/top*; rm -f /var/tmp/int* 
+

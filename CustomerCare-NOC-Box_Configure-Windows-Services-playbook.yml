@@ -1,0 +1,14 @@
+---
+
+- name: Configure Windows Services
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  tasks:
+  - name: Set the Google Update Service (gupdate) to manual 
+    win_service:
+      name: gupdate
+      start_mode: manual
+      state: stopped
+

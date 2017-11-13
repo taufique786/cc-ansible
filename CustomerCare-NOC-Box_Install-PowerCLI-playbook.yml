@@ -1,0 +1,20 @@
+---
+
+- name: Install PowerCLI
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy /etc/ansible/files/VMwarePowerCLI/ to "{{ defaultcustomercarenocboxgroup }}"
+    win_copy:
+      src=/etc/ansible/files/VMwarePowerCLI/
+      dest=e:/Temp/
+  - name: Install VMware-PowerCLI-6.3.0-3639347.exe on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\VMware-PowerCLI-6.3.0-3639347.exe /s /v/qn
+  - name: Run the PowerShell script on each server to ignore invalid certificate
+    script: files/VMwarePowerCLI/invalidCertificateAction.ps1

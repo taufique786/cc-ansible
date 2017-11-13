@@ -1,0 +1,20 @@
+---
+
+- name: Ensure Control Alert Policies Exist
+  hosts: localhost
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  connection: local
+  tasks:
+    - name: Ensure an Alert Policy in Control for disk above 85% for 15 minutes exists
+      clc_alert_policy:
+        alias: "{{ defaultaccountalias }}" 
+        name: 'Alert for disk > 85% for 15 minutes'
+        alert_recipients:
+            - noc@ctl.io
+        metric: 'disk'
+        duration: '00:15:00'
+        threshold: 85
+        state: present
+

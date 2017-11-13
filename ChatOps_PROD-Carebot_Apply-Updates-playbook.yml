@@ -1,0 +1,178 @@
+---
+
+################################################################################
+#  description: Applies ChatOps PROD Carebot Updates on RHEL7x
+#  usage: ansible-playbook ChatOps_PROD-Carebot_Apply-Updates-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Apply ChatOps PROD Carebot Updates on RHEL7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# Stop service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Stop carebot-prod.service service
+    service:
+      name: carebot-prod.service
+      enabled: yes
+      state: stopped
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: Rename the existing prod to create a fallback backup
+    raw: if [ -d /opt/carebot-prod ]; then mv -f /opt/carebot-prod /opt/carebot-prod.old; fi
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+# /opt/carebot-prod
+  - name: Create directory /opt/carebot-prod if it does not exist
+    file:
+      path: /opt/carebot-prod
+      state: directory
+      mode: 0755
+      owner: carebot
+      group: wheel
+      recurse: yes
+
+# /opt/carebot-prod/scripts
+  - name: Create directory /opt/carebot-prod/scripts if it does not exist
+    file:
+      path: /opt/carebot-prod/scripts
+      state: directory
+      mode: 0755
+      owner: carebot
+      group: wheel
+      recurse: yes
+
+# /opt/carebot-prod/node_modules/hubot-help/src
+  - name: Create directory /opt/carebot-prod/node_modules/hubot-help/src if it does not exist
+    file:
+      path: /opt/carebot-prod/node_modules/hubot-help/src
+      state: directory
+      mode: 0755
+      owner: carebot
+      group: wheel
+      recurse: yes
+
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /opt/carebot-prod/package.json
+  - name: Copy files/ChatOps/Carebot/PROD/package.json to remote /opt/carebot-prod/package.json
+    copy:
+      src: files/ChatOps/Carebot/PROD/package.json
+      dest: /opt/carebot-prod/package.json
+      owner: carebot
+      group: wheel
+      mode: 0644
+
+# /opt/carebot-prod/external-scripts.json
+  - name: Copy files/ChatOps/Carebot/PROD/external-scripts.json to remote /opt/carebot-prod/external-scripts.json
+    copy:
+      src: files/ChatOps/Carebot/PROD/external-scripts.json
+      dest: /opt/carebot-prod/external-scripts.json
+      owner: carebot
+      group: wheel
+      mode: 0644
+
+# /opt/carebot-prod/scripts/hubot-clc-diags.js
+  - name: Copy the updated files/ChatOps/Carebot/PROD/hubot-clc-help.js to /opt/carebot-prod/scripts/hubot-clc-diags.js
+    copy:
+      src: files/ChatOps/Carebot/PROD/hubot-clc-diags.js
+      dest: /opt/carebot-prod/scripts/hubot-clc-diags.js
+      owner: carebot
+      group: wheel
+      mode: 0755
+
+# /opt/carebot-prod/scripts/hubot-clc-help.js
+  - name: Copy the updated files/ChatOps/Carebot/PROD/hubot-clc-help.js to /opt/carebot-prod/scripts/hubot-clc-help.js
+    copy:
+      src: files/ChatOps/Carebot/PROD/hubot-clc-help.js
+      dest: /opt/carebot-prod/scripts/hubot-clc-help.js
+      owner: carebot
+      group: wheel
+      mode: 0755
+
+# /opt/carebot-prod/node_modules/hubot-help/src/help.coffee
+  - name: Copy the updated files/ChatOps/Carebot/PROD/help.coffee to /opt/carebot-prod/node_modules/hubot-help/src/help.coffee 
+    copy:
+      src: files/ChatOps/Carebot/PROD/help.coffee
+      dest: /opt/carebot-prod/node_modules/hubot-help/src/help.coffee
+      owner: carebot
+      group: wheel
+      mode: 0755
+
+# /opt/carebot-prod/scripts/hubot-clc-chatops.js
+  - name: Copy the updated files/ChatOps/Carebot/PROD/hubot-clc-help.js to /opt/carebot-prod/scripts/hubot-clc-chatops.js
+    copy:
+      src: files/ChatOps/Carebot/PROD/hubot-clc-chatops.js
+      dest: /opt/carebot-prod/scripts/hubot-clc-chatops.js
+      owner: carebot
+      group: wheel
+      mode: 0755
+
+
+# Use npm to install and manage Node.js packages
+# REF: http://docs.ansible.com/ansible/npm_module.html
+######################################################
+
+  - name: Run npm install in /opt/carebot-prod
+    npm:
+      path: /opt/carebot-prod
+      state: latest
+      production: yes
+      global: no
+
+
+# Set attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Set directory permisions on PROD /opt/carebot-prod
+    file:
+      path: /opt/carebot-prod
+      state: directory
+      owner: carebot
+      group: wheel
+      recurse: yes
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: systemctl daemon-reload
+    shell: systemctl daemon-reload
+
+
+# Enable and start chatops.service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start the carebot-prod.service service
+    service:
+      name: carebot-prod.service
+      enabled: yes
+      state: restarted
+      # Note: Verify PROD carebot-prod.service via SSH command line:
+      # systemctl status carebot-prod.service    

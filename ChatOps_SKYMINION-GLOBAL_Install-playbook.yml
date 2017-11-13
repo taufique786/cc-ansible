@@ -1,0 +1,172 @@
+---
+
+################################################################################
+#  description: Installs ChatOps SkyMinion Global kit on RHEL7x
+#  usage: ansible-playbook ChatOps_SKYMINION-GLOBAL_Install-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere HUBOT_SLACK_BOTNAME=YourHubotNameGoesHere HUBOT_SLACK_TOKEN=YourHubotSlackAPITokenKeyGoesHere'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Install ChatOps SkyMinion Global kit on RHEL7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+# Set attributes of files
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Create if missing and set directory permisions on /root/.ssh
+    file:
+      path: /root/.ssh
+      state: directory
+      owner: root
+      group: root
+      mode: 0700
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /root/.ssh/chatops_cc-ansible_github_id_rsa
+  - name: Copy PRIVATE RSA KEY files/rsa/chatops_cc-ansible_github_id_rsa to remote /root/.ssh/chatops_cc-ansible_github_id_rsa
+    copy:
+      src: files/rsa/chatops_cc-ansible_github_id_rsa
+      dest: /root/.ssh/chatops_cc-ansible_github_id_rsa
+      owner: root
+      group: root
+      mode: 0600
+
+# /root/.ssh/chatops_cc-ansible_github_id_rsa.pub
+  - name: Copy PUBLIC RSA KEY files/rsa/chatops_cc-ansible_github_id_rsa.pub to remote /root/.ssh/chatops_cc-ansible_github_id_rsa.pub
+    copy:
+      src: files/rsa/chatops_cc-ansible_github_id_rsa.pub
+      dest: /root/.ssh/chatops_cc-ansible_github_id_rsa.pub
+      owner: root
+      group: root
+      mode: 0644
+
+# Create and manage user accounts
+# REF: http://docs.ansible.com/ansible/user_module.html
+#######################################################
+
+  - name: Add user skyminion to the OS so hubot does not run as root
+    user:
+      name: skyminion
+      comment: skyminion
+      group: wheel
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+# /opt/skyminion
+  - name: Create directory /opt/skyminion if it does not exist
+    file:
+      path: /opt/skyminion
+      state: directory
+      mode: 0755
+      owner: skyminion
+      group: wheel
+      recurse: yes
+
+# /opt/skyminion/scripts
+  - name: Create directory /opt/skyminion/scripts if it does not exist
+    file:
+      path: /opt/skyminion/scripts
+      state: directory
+      mode: 0755
+      owner: skyminion
+      group: wheel
+      recurse: yes
+
+# Use the template module to populate files with data
+# REF: http://docs.ansible.com/ansible/template_module.html
+###########################################################
+
+# /etc/systemd/system/skyminion.service
+  - name: Fill in the variables and copy templates/ChatOps/Minion/PROD/skyminion.service.j2 to remote /etc/systemd/system/skyminion.service
+    template:
+      src: templates/ChatOps/Minion/PROD/skyminion.service.j2
+      dest: /etc/systemd/system/skyminion.service
+      owner: root
+      group: wheel
+      mode: 0755
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /opt/skyminion/package.json
+  - name: Copy files/ChatOps/Minion/PROD/package.json to remote /opt/skyminion/package.json
+    copy:
+      src: files/ChatOps/Minion/PROD/package.json
+      dest: /opt/skyminion/package.json
+      owner: skyminion
+      group: wheel
+      mode: 0644
+
+# /opt/skyminion/external-scripts.json
+  - name: Copy files/ChatOps/Minion/PROD/external-scripts.json to remote /opt/skyminion/external-scripts.json
+    copy:
+      src: files/ChatOps/Minion/PROD/external-scripts.json
+      dest: /opt/skyminion/external-scripts.json
+      owner: skyminion
+      group: wheel
+      mode: 0644
+
+# Use npm to install and manage Node.js packages
+# REF: http://docs.ansible.com/ansible/npm_module.html
+######################################################
+
+  - name: Run npm install in /opt/skyminion
+    npm:
+      path: /opt/skyminion
+      state: latest
+      production: yes
+      global: no
+
+# Set attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+# /opt/skyminion/skyminion.service
+  - name: Create a symbolic link - ln -s /etc/systemd/system/skyminion.service /opt/chatops-prod/skyminion.service
+    file:
+      src: /etc/systemd/system/skyminion.service
+      dest: /opt/skyminion/skyminion.service
+      state: link
+      owner: root
+      group: wheel
+
+  - name: Set directory permisions on PROD /opt/skyminion
+    file:
+      path: /opt/skyminion
+      state: directory
+      owner: skyminion
+      group: wheel
+      recurse: yes
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: systemctl daemon-reload
+    shell: systemctl daemon-reload
+
+# Enable and start skyminion.service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start the skyminion.service
+    service:
+      name: skyminion.service
+      enabled: yes
+      state: restarted
+      # Note: Verify skyminion.service via SSH command line:
+      # systemctl status skyminion.service

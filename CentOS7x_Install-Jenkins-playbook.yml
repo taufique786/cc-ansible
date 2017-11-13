@@ -1,0 +1,612 @@
+---
+
+################################################################################
+#  description: Installs Jenkins on CentOS7x
+#  usage: ansible-playbook CentOS7x_Install-Jenkins-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Install Jenkins on CentOS7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# Install yum packages
+# REF: http://docs.ansible.com/ansible/yum_module.html
+######################################################
+
+  - name: Install the Java JRE runtime java
+    yum:
+      name: java-1.8.0-openjdk
+      state: latest
+
+  - name: Install the Java JDK compiler javac
+    yum:
+      name: java-1.8.0-openjdk-devel
+      state: latest
+
+  - name: Install Groovy language for Java
+    yum:
+      name: groovy
+      state: latest
+
+  - name: Install git
+    yum:
+      name: git
+      state: latest
+
+# Update various configuration files
+# REF: http://docs.ansible.com/ansible/lineinfile_module.html
+#############################################################
+
+  - name: Set JAVA_HOME environment variable for root on next login
+    lineinfile:
+      dest: /root/.bash_profile
+      state: present
+      line: 'export JAVA_HOME=/usr/lib/jvm/java-openjdk'
+
+  - name: Set JRE_HOME environment variable for root on next login
+    lineinfile:
+      dest: /root/.bash_profile
+      state: present
+      line: 'export JRE_HOME=/usr/lib/jvm/java-openjdk/jre'
+
+  - name: Add Java to the path for root on next login
+    lineinfile:
+      dest: /root/.bash_profile
+      state: present
+      line: 'export PATH=$PATH:/usr/lib/jvm/java-openjdk/bin:/usr/lib/jvm/java-openjdk/jre/bin'
+
+
+# Restart firewalld to make sure it is running OK before changing any rules
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Ensure the firewalld service is enabled and re-started before changing any rules
+    service:
+      name: firewalld
+      enabled: yes
+      state: restarted
+
+
+# Update the firewalld configuration
+# REF: http://docs.ansible.com/ansible/firewalld_module.html
+############################################################
+
+  - name: Update firewall to allow port TCP 8080 for incoming Jenkins HTTP connections
+    firewalld:
+      port: 8080/tcp
+      permanent: true
+      immediate: yes
+      state: enabled
+      zone: public
+
+  - name: Update firewall to allow port TCP 49187 for incoming Jenkins JNLP connections
+    firewalld:
+      port: 49187/tcp
+      permanent: true
+      immediate: yes
+      state: enabled
+      zone: public
+
+
+# Install or configure repository used on the OS by yum
+# REF: https://docs.ansible.com/ansible/yum_repository_module.html
+##################################################################
+
+# /etc/yum.repos.d/jenkins.repo
+  - name: Install repository Jenkins
+    yum_repository:
+      name: Jenkins
+      description: Jenkins repository
+      file: jenkins
+      baseurl: http://pkg.jenkins.io/redhat
+      enabled: yes
+      gpgcheck: yes
+      gpgkey: https://pkg.jenkins.io/redhat/jenkins.io.key
+
+
+# Install yum packages
+# REF: http://docs.ansible.com/ansible/yum_module.html
+######################################################
+
+  - name: Install Jenkins
+    yum:
+      name: jenkins
+      state: latest
+
+
+# Enable and start Jenkins service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 30
+
+# wait_for - Waits for a condition before continuing
+# REF: http://docs.ansible.com/ansible/wait_for_module.html
+###########################################################
+
+  - name: Wait for file to exist before continuing /var/lib/jenkins/config.xml
+    wait_for:
+      path: /var/lib/jenkins/config.xml
+
+  - name: Wait for file to exist before continuing /var/lib/jenkins/users/admin/config.xml
+    wait_for:
+      path: /var/lib/jenkins/users/admin/config.xml
+
+  - name: Wait for file to exist before continuing /var/lib/jenkins/secrets/initialAdminPassword
+    wait_for:
+      path: /var/lib/jenkins/secrets/initialAdminPassword
+
+
+# Register Variables
+# REF: http://docs.ansible.com/ansible/playbooks_conditionals.html#register-variables
+#####################################################################################
+
+  - name: Get the autogenerated default starting admin password via cat /var/lib/jenkins/secrets/initialAdminPassword
+    shell: cat /var/lib/jenkins/secrets/initialAdminPassword
+    register: jenkins_default_admin_password
+  - debug: msg="Default starting Jenkins password {{jenkins_default_admin_password.stdout}}"
+
+
+# lineinfile - Ensure a particular line is in a file, or replace an existing line using a back-referenced regular expression
+# REF: http://docs.ansible.com/ansible/lineinfile_module.html
+#############################################################
+
+  - name: Configure Jenkins service to skip the setup wizard
+    lineinfile:
+      dest: /etc/sysconfig/jenkins
+      regexp: '^JENKINS_JAVA_OPTIONS=' 
+      line: 'JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false"'
+
+
+# Restart Jenkins service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+      # cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+# wait_for - Waits for a condition before continuing
+# REF: http://docs.ansible.com/ansible/wait_for_module.html
+###########################################################
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 30
+
+
+# command - Executes a command on a remote node
+# REF: http://docs.ansible.com/ansible/command_module.html
+##########################################################
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ list-plugins --username admin --password keyhere
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin git -restart --username admin --password keyhere
+  - name: Install Jenkins plugin git
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin git -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/git
+    ignore_errors: yes
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin github -restart --username admin --password keyhere
+  - name: Install Jenkins plugin github
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin github -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/github
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin github-oauth -restart --username admin --password keyhere
+  - name: Install Jenkins plugin github-oauth
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin github-oauth -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/github-oauth
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin ansible -restart --username admin --password keyhere
+  - name: Install Jenkins plugin ansible
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin ansible -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/ansible
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin slack -restart --username admin --password keyhere
+  - name: Install Jenkins plugin slack
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin slack -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/slack
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin slack-uploader -restart --username admin --password keyhere
+  - name: Install Jenkins plugin slack-uploader
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin slack-uploader -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/slack-uploader
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin pagerduty -restart --username admin --password keyhere
+  - name: Install Jenkins plugin pagerduty
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin pagerduty -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/pagerduty
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin disk-usage -restart --username admin --password keyhere
+  - name: Install Jenkins plugin disk-usage
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin disk-usage -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/disk-usage
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin docker-plugin -restart --username admin --password keyhere
+  - name: Install Jenkins plugin docker-plugin
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin docker-plugin -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/docker-plugin
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin audit-trail -restart --username admin --password keyhere
+  - name: Install Jenkins plugin audit-trail
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin audit-trail -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/audit-trail
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin global-build-stats -restart --username admin --password keyhere
+  - name: Install Jenkins plugin global-build-stats
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin global-build-stats -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/global-build-stats
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin build-metrics -restart --username admin --password keyhere
+  - name: Install Jenkins plugin build-metrics
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin build-metrics -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/build-metrics
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin configurationslicing -restart --username admin --password keyhere
+  - name: Install Jenkins plugin configurationslicing
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin configurationslicing -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/configurationslicing
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin matrix-auth -restart --username admin --password keyhere
+  - name: Install Jenkins plugin matrix-auth
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin matrix-auth -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/matrix-auth
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin greenballs -restart --username admin --password keyhere
+  - name: Install Jenkins plugin greenballs
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin greenballs -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/greenballs
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin gravatar -restart --username admin --password keyhere
+  - name: Install Jenkins plugin gravatar
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin gravatar -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/gravatar
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin job-dsl -restart --username admin --password keyhere
+  - name: Install Jenkins plugin job-dsl
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin job-dsl -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/job-dsl
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin jobConfigHistory -restart --username admin --password keyhere
+  - name: Install Jenkins plugin jobConfigHistory
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin jobConfigHistory -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/jobConfigHistory
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin nodejs -restart --username admin --password keyhere
+  - name: Install Jenkins plugin nodejs
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin nodejs -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/nodejs
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin timestamper -restart --username admin --password keyhere
+  - name: Install Jenkins plugin timestamper
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin timestamper -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/timestamper
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin scm-sync-configuration -restart --username admin --password keyhere
+  - name: Install Jenkins plugin scm-sync-configuration
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin scm-sync-configuration -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/scm-sync-configuration
+
+  - name: Restart Jenkins service
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+  - name: Wait for Jenkins TCP port 8080 to respond before moving on
+    wait_for:
+      host: localhost
+      port: 8080
+      delay: 20
+
+# java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin thinBackup -restart --username admin --password keyhere
+  - name: Install Jenkins plugin thinBackup
+    command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin thinBackup -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+    args:
+      creates: /var/lib/jenkins/plugins/thinBackup
+
+  - name: Restart Jenkins service one last time!
+    service:
+      name: jenkins
+      enabled: yes
+      state: restarted
+
+
+  - debug: msg="** You may now login to Jenkins at http://{{ansible_ssh_host}}:8080 with username admin and password {{jenkins_default_admin_password.stdout}} **"
+
+
+# Possible future Jenkins plugins
+#################################
+
+# # java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://IPHere:8080/ install-plugin build-pipeline-plugin -restart --username admin --password keyhere
+#   - name: Install Jenkins plugin blueocean
+#     command: /usr/bin/java -jar /var/cache/jenkins/war/WEB-INF/jenkins-cli.jar -s http://localhost:8080/ install-plugin blueocean -restart --username admin --password {{jenkins_default_admin_password.stdout}}
+#     args:
+#       creates: /var/lib/jenkins/plugins/blueocean
+

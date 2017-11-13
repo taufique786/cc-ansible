@@ -1,0 +1,88 @@
+---
+
+################################################################################
+#  description: Installs ChatOps Slack Watchdog script and adds a cron entry
+#  usage: ansible-playbook ChatOps_Install-Slack-Watchdog-Script-and-Add-Cron-Entry-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere ServiceName=service-name-here.service'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Install ChatOps Slack Watchdog script and add a cron entry if the specify service file exists
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Create the /opt/watchdog directory if it does not exist
+    file:
+      path: /opt/watchdog
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+
+# copy - Copies files to remote locations
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+  - name: Copy the watchdog script to /opt/watchdog/slack-adapter-watchdog.sh if it is not already in place
+    copy:
+      src: files/ChatOps/scripts/slack-adapter-watchdog.sh
+      dest: /opt/watchdog/slack-adapter-watchdog.sh
+      owner: root
+      group: root
+      mode: 0744
+
+  - name: Copy the pinger script to /opt/watchdog/pinger-script.sh if it is not already in place
+    copy:
+      src: files/ChatOps/scripts/pinger-script.sh
+      dest: /opt/watchdog/pinger-script.sh
+      owner: root
+      group: root
+      mode: 0744
+
+# stat - retrieve file or file system status
+# REF: http://docs.ansible.com/ansible/stat_module.html
+#######################################################
+
+  - name: Check if a systemctl service file exists with the specified name via stat /etc/systemd/system/{{ServiceName}}
+    stat: path=/etc/systemd/system/{{ServiceName}}
+    register: ServiceFile
+
+
+# cron - Manage cron.d and crontab entries
+# REF: http://docs.ansible.com/ansible/cron_module.html
+#######################################################
+
+  - debug: 
+      msg: "A crontab entry for the watchdog script CANNOT be created since a service file does NOT exist for the service name specified"
+    when:
+      - ServiceFile.stat.exists == False
+
+  - name: Adding a crontab entry for the watchdog script for the specify service name if the specified service name exists
+    cron:
+      name: "Watchdog /opt/watchdog/slack-adapter-watchdog.sh {{ServiceName}} to test for a Slack connection and restart the ChatOps service if needed."
+      minute: "0,5,10,15,20,25,30,35,40,45,50,55"
+      job: "/opt/watchdog/slack-adapter-watchdog.sh {{ServiceName}} > /dev/null 2>&1"
+      state: "present"
+    when:
+      - ServiceFile.stat.exists == True
+      # Note: Verify via SSH command line:
+      # crontab -l
+
+  - name: Adding a crontab entry for the pinger script to keep an eye on api.slack.com and 8.8.8.8
+    cron:
+      name: "Watchdog /opt/watchdog/pinger-script.sh to test connectivty to api.slack.com and 8.8.8.8."
+      job: "/opt/watchdog/pinger-script.sh > /dev/null 2>&1"
+      state: "present"

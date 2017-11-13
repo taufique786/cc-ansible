@@ -1,0 +1,19 @@
+---
+
+- name: Install Java 
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False 
+  tasks:
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy files/Java/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/Java/
+      dest=E:/Temp/
+  - name: Install jdk-8u11-windows-i586.exe on all "{{ defaultcustomercarenocboxgroup }}"
+    raw: E:\Temp\jdk-8u11-windows-i586.exe /s
+

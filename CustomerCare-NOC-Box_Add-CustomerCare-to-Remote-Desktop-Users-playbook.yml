@@ -1,0 +1,12 @@
+---
+
+- name: Add T3N\CustomerCare to local Remote Desktop Users on "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: false
+  ignore_errors: yes
+  force_handlers: True
+  tasks:
+  - name: Add T3N\CustomerCare to local Remote Desktop Users
+    raw: net localgroup "Remote Desktop Users" T3N\CustomerCare /add

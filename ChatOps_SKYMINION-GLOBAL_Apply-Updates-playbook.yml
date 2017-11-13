@@ -1,0 +1,143 @@
+---
+
+################################################################################
+#  description: Applies ChatOps PROD Skyminion Updates on RHEL7x
+#  usage: ansible-playbook ChatOps_SKYMINION-GLOBAL_Apply-Updates-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Apply ChatOps PROD Skyminion Updates on RHEL7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# Stop service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Stop skyminion.service service
+    service:
+      name: skyminion.service
+      enabled: yes
+      state: stopped
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+  - name: rm -rf /opt/skyminion.old if it exists!
+    file:
+      path: /opt/skyminion.old
+      state: absent
+
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: Rename the existing prod to create a fallback backup
+    raw: if [ -d /opt/skyminion ]; then mv -f /opt/skyminion /opt/skyminion.old; fi
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+# /opt/skyminion
+  - name: Create directory /opt/skyminion if it does not exist
+    file:
+      path: /opt/skyminion
+      state: directory
+      mode: 0755
+      owner: skyminion
+      group: wheel
+      recurse: yes
+
+# /opt/skyminion/scripts
+  - name: Create directory /opt/skyminion/scripts if it does not exist
+    file:
+      path: /opt/skyminion/scripts
+      state: directory
+      mode: 0755
+      owner: skyminion
+      group: wheel
+      recurse: yes
+
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /opt/skyminion/package.json
+  - name: Copy files/ChatOps/Minion/PROD/package.json to remote /opt/skyminion/package.json
+    copy:
+      src: files/ChatOps/Minion/PROD/package.json
+      dest: /opt/skyminion/package.json
+      owner: skyminion
+      group: wheel
+      mode: 0644
+
+# /opt/skyminion/external-scripts.json
+  - name: Copy files/ChatOps/Minion/PROD/external-scripts.json to remote /opt/skyminion/external-scripts.json
+    copy:
+      src: files/ChatOps/Minion/PROD/external-scripts.json
+      dest: /opt/skyminion/external-scripts.json
+      owner: skyminion
+      group: wheel
+      mode: 0644
+
+
+# Use npm to install and manage Node.js packages
+# REF: http://docs.ansible.com/ansible/npm_module.html
+######################################################
+
+  - name: Run npm install in /opt/skyminion
+    npm:
+      path: /opt/skyminion
+      state: latest
+      production: yes
+      global: no
+
+
+# Set attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Set directory permisions on PROD /opt/skyminion
+    file:
+      path: /opt/skyminion
+      state: directory
+      owner: skyminion
+      group: wheel
+      recurse: yes
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: systemctl daemon-reload
+    shell: systemctl daemon-reload
+
+
+# Enable and start skyminion.service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start the skyminion.service service
+    service:
+      name: skyminion.service
+      enabled: yes
+      state: restarted
+      # Note: Verify PROD skyminion.service via SSH command line:
+      # systemctl status skyminion.service

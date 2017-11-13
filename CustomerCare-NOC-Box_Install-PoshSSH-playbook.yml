@@ -1,0 +1,34 @@
+- name: Install Posh-SSH module for PowerShell
+  hosts: "{{ defaultcustomercarenocboxgroup  }}"
+  gather_facts: false
+  vars_files:
+    - group_vars/CustomerCare-NOC-Box_Install-PoshSSH.yml
+  
+  tasks:
+  
+    - name: Downloading '{{poshSource}}' and saving to '{{poshZip}}'
+      win_get_url:
+        url: '{{poshSource}}'
+        dest: '{{poshZip}}'
+        force: yes
+      register: get_posh-ssh
+
+    - name: Delete existing Posh-SSH module if exists - any failure here indicates the module is in use and can't be deleted'
+      win_file: path='{{poshFinal}}' state=absent
+
+    - name: Unzipping '{{poshZip}}' to '{{poshTemp}}' and delete '{{poshZip}}' after extraction
+      win_unzip:
+        src: '{{poshZip}}'
+        dest: '{{psModules}}'
+        rm: yes
+    
+    - name: Renaming '{{poshTemp}}' to '{{poshFinal}}' in Modules directory
+      raw: ren '{{poshTemp}}' Posh-SSH
+  
+    - name: Testing Posh-SSH Module
+      raw: Get-PoshSSHModVersion
+      register: poshVersion
+    
+    - name: Print Posh-SSH version
+      debug: "msg='Posh-SSH Version: {{ poshVersion.stdout }}'"
+

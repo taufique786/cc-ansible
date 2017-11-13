@@ -1,0 +1,20 @@
+---
+  - name: Disable Server Manager
+    hosts: "{{ defaultcustomercarenocboxgroup }}"
+    vars_files:
+      - host_vars/default.yml
+    gather_facts: False
+    tasks:
+    - name: Get Registry Key Value
+      script: files/PowerShell/Getdissm.ps1
+      register: sm      
+    - set_fact:
+        smres: "{{sm.stdout|from_json}}"
+    - debug: var=sm.stdout
+    - name: Set Registry Key to disable server manager      
+      win_regedit:
+        key: HKLM:\Software\Microsoft\ServerManager
+        value: DoNotOpenServerManagerAtLogon
+        data: 1
+        datatype: dword
+      when: smres.DoNotOpenServerManagerAtLogon != 1

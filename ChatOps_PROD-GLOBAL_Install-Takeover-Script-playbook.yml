@@ -1,0 +1,66 @@
+---
+
+################################################################################
+#  description: Install the takeover script on the ChatOps Global servers
+#  usage: ansible-playbook ChatOps_PROD-GLOBAL_Install-Takeover-Script-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere'
+#  author: Johnny Mastin
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Install ChatOps takeover script
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Create the /usr/local directory if it does not exist
+    file:
+      path: /usr/local
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: Create the /usr/local/bin directory if it does not exist
+    file:
+      path: /usr/local/bin
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+
+# copy - Copies files to remote locations
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+  - name: Copy the takeover.sh script to /usr/local/bin if it is not already in place
+    copy:
+      src: files/ChatOps/scripts/takeover.sh
+      dest: /usr/local/bin/takeover.sh
+      owner: root
+      group: root
+      mode: 0744
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Link takeover.sh to takeover if it is not already in place
+    file:
+      src: /usr/local/bin/takeover.sh
+      dest: /usr/local/bin/takeover
+      owner: root
+      group: root
+      state: link

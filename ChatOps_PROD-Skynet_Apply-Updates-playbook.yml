@@ -1,0 +1,141 @@
+---
+
+################################################################################
+#  description: Applies ChatOps PROD Skynet Updates on RHEL7x
+#  usage: ansible-playbook ChatOps_PROD-Skynet_Apply-Updates-playbook.yml --extra-vars 'HostOrGroup=YourServerOrGroupNameGoesHere'
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Apply ChatOps PROD Skynet Updates on RHEL7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# Stop service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Stop skynet-prod.service service
+    service:
+      name: skynet-prod.service
+      enabled: yes
+      state: stopped
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+  - name: rm -rf /opt/skynet-prod.old if it exists!
+    file:
+      path: /opt/skynet-prod.old
+      state: absent
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: Rename the existing prod to create a fallback backup
+    raw: if [ -d /opt/skynet-prod ]; then mv -f /opt/skynet-prod /opt/skynet-prod.old; fi
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+# /opt/skynet-prod
+  - name: Create directory /opt/skynet-prod if it does not exist
+    file:
+      path: /opt/skynet-prod
+      state: directory
+      mode: 0755
+      owner: skynet
+      group: wheel
+      recurse: yes
+
+# /opt/skynet-prod/scripts
+  - name: Create directory /opt/skynet-prod/scripts if it does not exist
+    file:
+      path: /opt/skynet-prod/scripts
+      state: directory
+      mode: 0755
+      owner: skynet
+      group: wheel
+      recurse: yes
+
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /opt/skynet-prod/package.json
+  - name: Copy files/ChatOps/Skynet/PROD/package.json to remote /opt/skynet-prod/package.json
+    copy:
+      src: files/ChatOps/Skynet/PROD/package.json
+      dest: /opt/skynet-prod/package.json
+      owner: skynet
+      group: wheel
+      mode: 0644
+
+# /opt/skynet-prod/external-scripts.json
+  - name: Copy files/ChatOps/Skynet/PROD/external-scripts.json to remote /opt/skynet-prod/external-scripts.json
+    copy:
+      src: files/ChatOps/Skynet/PROD/external-scripts.json
+      dest: /opt/skynet-prod/external-scripts.json
+      owner: skynet
+      group: wheel
+      mode: 0644
+
+
+# Use npm to install and manage Node.js packages
+# REF: http://docs.ansible.com/ansible/npm_module.html
+######################################################
+
+  - name: Run npm install in /opt/skynet-prod
+    npm:
+      path: /opt/skynet-prod
+      state: latest
+      production: yes
+      global: no
+
+
+# Set attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Set directory permisions on PROD /opt/skynet-prod
+    file:
+      path: /opt/skynet-prod
+      state: directory
+      owner: skynet
+      group: wheel
+      recurse: yes
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: systemctl daemon-reload
+    shell: systemctl daemon-reload
+
+
+# Enable and start chatops.service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start the skynet-prod.service service
+    service:
+      name: skynet-prod.service
+      enabled: yes
+      state: restarted
+      # Note: Verify PROD skynet-prod.service via SSH command line:
+      # systemctl status skynet-prod.service    

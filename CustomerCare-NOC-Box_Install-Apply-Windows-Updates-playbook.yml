@@ -1,0 +1,60 @@
+---
+
+- name: Windows Updates
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Delete E:\Temp from all "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=absent
+  - name: Create E:\Temp directory on "{{ defaultcustomercarenocboxgroup }}"
+    win_file: path=E:\Temp state=directory
+  - name: Copy files/MicrosoftUpdates/ to "{{ defaultcustomercarenocboxgroup }}" E:\Temp\
+    win_copy:
+      src=files/MicrosoftUpdates/
+      dest=E:/Temp/
+  - name: Enable Other Microsoft Product Updates "{{ defaultcustomercarenocboxgroup }}"
+    raw: cscript E:\Temp\EnableOtherMicrosoftProductUpdates.vbs
+  - name: Install Windows Updates
+    win_updates:
+      category_names: ['Application','Connectors','CriticalUpdates','DefinitionUpdates','DeveloperKits','FeaturePacks','Guidance','SecurityUpdates','ServicePacks','Tools','UpdateRollups','Updates']
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: no
+    winreboot_cooldown_period: 60
+    winreboot_winrm_delay: 240 
+    winreboot_winrm_retries: 2 
+
+- name: Windows Updates
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  gather_facts: False
+  tasks:
+  - name: Install Windows Updates
+    win_updates:
+      category_names: ['Application','Connectors','CriticalUpdates','DefinitionUpdates','DeveloperKits','FeaturePacks','Guidance','SecurityUpdates','ServicePacks','Tools','UpdateRollups','Updates']
+
+- name: Reboot "{{ defaultcustomercarenocboxgroup }}"
+  hosts: "{{ defaultcustomercarenocboxgroup }}"
+  serial: "100%"
+  vars_files:
+    - host_vars/default.yml
+  roles:
+    - role: trondhindenes.win_reboot
+  vars:
+    winreboot_simulate: no
+    winreboot_cooldown_period: 60
+    winreboot_winrm_delay: 120 
+    winreboot_winrm_retries: 2
+

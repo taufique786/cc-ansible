@@ -1,0 +1,242 @@
+---
+
+################################################################################
+#  description: Installs ChatOps DEV Skynet kit on RHEL7x
+#  usage: ansible-playbook ChatOps_DEV-Skynet_Install-playbook.yml --extra-vars "HostOrGroup=YourServerOrGroupNameGoesHere HUBOT_SLACK_BOTNAME=Your-HUBOT_SLACK_BOTNAME-Goes-Here HUBOT_SLACK_TOKEN=Your-HUBOT_SLACK_TOKEN-Goes-Here SKYNET_DEV_STATE=True SKYNETAPI_SLACK_TOKEN=Your-SKYNETAPI_SLACK_TOKEN-Goes-Here ALICE_SLACK_ID=Your-ALICE_SLACK_ID-Goes-Here SKYNET_SLACK_ID=Your-SKYNET_SLACK_ID-Goes-Here CUSTCARE_SLACK_CHANNEL=Your-CUSTCARE_SLACK_CHANNEL-Goes-Here HUBOT_PAGERDUTY_API=Your-HUBOT_PAGERDUTY_API-Goes-Here HUBOT_PAGERDUTY_DOMAIN=Your-HUBOT_PAGERDUTY_DOMAIN-Goes-Here HUBOT_PAGERDUTY_IC_SCHEDULE=Your-HUBOT_PAGERDUTY_IC_SCHEDULE-Goes-Here HUBOT_PAGERDUTY_BATMAN_SCHEDULE=Your-HUBOT_PAGERDUTY_BATMAN_SCHEDULE-Goes-Here HUBOT_PAGERDUTY_EXECESC_SCHEDULE=Your-HUBOT_PAGERDUTY_EXECESC_SCHEDULE-Goes-Here HUBOT_PAGERDUTY_CAPCOM_SCHEDULE=Your-HUBOT_PAGERDUTY_CAPCOM_SCHEDULE-Goes-Here SKYNET_PD_SCHEDULE_ID=Your-SKYNET_PD_SCHEDULE_ID-Goes-Here SKYNET_PD_INT_KEY=Your-SKYNET_PD_INT_KEY-Goes-Here SKYNET_ZD_USERNAME=Your-SKYNET_ZD_USERNAME-Goes-Here SKYNET_ZD_PASSWORD=Your-SKYNET_ZD_PASSWORD-Goes-Here HUBOT_DC_LOC=Your-HUBOT_DC_LOC-Goes-Here""
+#  author: Ernest G. Wilson II <ErnestGWilsonII@gmail.com> (https://github.com/ernestgwilsonii)
+#  license: MIT
+################################################################################
+
+
+# Ansible Playbook options
+# REF: http://docs.ansible.com/ansible/playbooks.html
+#####################################################
+
+- name: Install ChatOps DEV Skynet kit on RHEL7x
+  hosts: "{{ HostOrGroup|default ('FATAL ERROR --> HostOrGroup NOT SET! You must specify either a Host or a Group name!') }}"
+  serial: "100%"
+  gather_facts: False
+  tasks:
+
+
+# Set attributes of files
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+  - name: Create if missing and set directory permisions on /root/.ssh
+    file:
+      path: /root/.ssh
+      state: directory
+      owner: root
+      group: root
+      mode: 0700
+
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /root/.ssh/chatops_cc-ansible_github_id_rsa
+  - name: Copy PRIVATE RSA KEY files/rsa/chatops_cc-ansible_github_id_rsa to remote /root/.ssh/chatops_cc-ansible_github_id_rsa
+    copy:
+      src: files/rsa/chatops_cc-ansible_github_id_rsa
+      dest: /root/.ssh/chatops_cc-ansible_github_id_rsa
+      owner: root
+      group: root
+      mode: 0600
+
+
+# /root/.ssh/chatops_cc-ansible_github_id_rsa.pub
+  - name: Copy PUBLIC RSA KEY files/rsa/chatops_cc-ansible_github_id_rsa.pub to remote /root/.ssh/chatops_cc-ansible_github_id_rsa.pub
+    copy:
+      src: files/rsa/chatops_cc-ansible_github_id_rsa.pub
+      dest: /root/.ssh/chatops_cc-ansible_github_id_rsa.pub
+      owner: root
+      group: root
+      mode: 0644
+
+
+# Create and manage user accounts
+# REF: http://docs.ansible.com/ansible/user_module.html
+#######################################################
+
+  - name: Add user skynet to the OS so hubot does not run as root
+    user:
+      name: skynet
+      comment: skynet
+      group: wheel
+
+
+# file - Sets attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+##################################################################################
+
+# /opt/skynet-dev
+  - name: Create directory /opt/skynet-dev if it does not exist
+    file:
+      path: /opt/skynet-dev
+      state: directory
+      mode: 0755
+      owner: skynet
+      group: wheel
+      recurse: yes
+
+# /opt/skynet-dev/scripts
+  - name: Create directory /opt/skynet-dev/scripts if it does not exist
+    file:
+      path: /opt/skynet-dev/scripts
+      state: directory
+      mode: 0755
+      owner: skynet
+      group: wheel
+      recurse: yes
+
+
+# Use the template module to populate files with data
+# REF: http://docs.ansible.com/ansible/template_module.html
+###########################################################
+
+# /etc/systemd/system/skynet-dev.service
+  - name: Fill in the variables and copy templates/ChatOps/Skynet/DEV/skynet-dev.service.j2 to remote /etc/systemd/system/skynet-dev.service
+    template:
+      src: templates/ChatOps/Skynet/DEV/skynet-dev.service.j2
+      dest: /etc/systemd/system/skynet-dev.service
+      owner: root
+      group: wheel
+      mode: 0755
+
+
+# Use the copy module to copy various files into place
+# REF: http://docs.ansible.com/ansible/copy_module.html
+#######################################################
+
+# /opt/skynet-dev/package.json
+  - name: Copy files/ChatOps/Skynet/DEV/package.json to remote /opt/skynet-dev/package.json
+    copy:
+      src: files/ChatOps/Skynet/DEV/package.json
+      dest: /opt/skynet-dev/package.json
+      owner: skynet
+      group: wheel
+      mode: 0644
+
+# /opt/skynet-dev/external-scripts.json
+  - name: Copy files/ChatOps/Skynet/DEV/external-scripts.json to remote /opt/skynet-dev/external-scripts.json
+    copy:
+      src: files/ChatOps/Skynet/DEV/external-scripts.json
+      dest: /opt/skynet-dev/external-scripts.json
+      owner: skynet
+      group: wheel
+      mode: 0644
+
+# /opt/skynet-dev/scripts/hubot-clc-diags.js
+  - name: Copy the updated files/ChatOps/Skynet/DEV/hubot-clc-help.js to /opt/skynet-dev/scripts/hubot-clc-diags.js
+    copy:
+      src: files/ChatOps/Skynet/DEV/hubot-clc-diags.js
+      dest: /opt/skynet-dev/scripts/hubot-clc-diags.js
+      owner: skynet
+      group: wheel
+      mode: 0755
+
+
+# Use npm to install and manage Node.js packages
+# REF: http://docs.ansible.com/ansible/npm_module.html
+######################################################
+
+  - name: Run npm install in /opt/skynet-dev
+    npm:
+      path: /opt/skynet-dev
+      state: latest
+      production: yes
+      global: no
+
+
+#######################
+# hubot-clc-pagerduty #
+#######################
+#
+# git - Deploy software (or files) from git checkouts
+# REF: http://docs.ansible.com/ansible/git_module.html
+######################################################
+
+  - name: Git clone hubot-clc-pagerduty to DEV /opt/skynet-dev/node_modules/hubot-clc-pagerduty
+    git:
+      repo: git@github.com:Tier3/hubot-clc-pagerduty.git
+      version: master
+      dest: /opt/skynet-dev/node_modules/hubot-clc-pagerduty
+      accept_hostkey: yes
+      key_file: /root/.ssh/chatops_cc-ansible_github_id_rsa
+
+####################
+# hubot-clc-skynet #
+####################
+#
+# git - Deploy software (or files) from git checkouts
+# REF: http://docs.ansible.com/ansible/git_module.html
+######################################################
+#
+  - name: Git clone hubot-clc-skynet to DEV /opt/skynet-dev/node_modules/hubot-clc-skynet
+    git:
+      repo: git@github.com:Tier3/hubot-clc-skynet.git
+      version: master
+      dest: /opt/skynet-dev/node_modules/hubot-clc-skynet
+      accept_hostkey: yes
+      key_file: /root/.ssh/chatops_cc-ansible_github_id_rsa
+
+####################
+# node-clc-zenoss #
+####################
+#
+# git - Deploy software (or files) from git checkouts
+# REF: http://docs.ansible.com/ansible/git_module.html
+######################################################
+#
+  - name: Git clone node-clc-zenoss to DEV /opt/skynet-dev/node_modules/node-clc-zenoss
+    git:
+      repo: git@github.com:Tier3/node-clc-zenoss.git
+      version: master
+      dest: /opt/skynet-dev/node_modules/node-clc-zenoss
+      accept_hostkey: yes
+      key_file: /root/.ssh/chatops_cc-ansible_github_id_rsa
+
+
+# Set attributes of files and folders
+# REF: http://docs.ansible.com/ansible/file_module.html
+#######################################################
+
+# /etc/systemd/system/skynet-dev.service
+  - name: Create a symbolic link - ln -s /etc/systemd/system/skynet-dev.service /opt/skynet-dev/skynet-dev.service
+    file:
+      src: /etc/systemd/system/skynet-dev.service
+      dest: /opt/skynet-dev/skynet-dev.service
+      state: link
+      owner: root
+      group: wheel
+
+  - name: Set directory permisions on DEV /opt/skynet-dev
+    file:
+      path: /opt/skynet-dev
+      state: directory
+      owner: skynet
+      group: wheel
+      recurse: yes
+
+
+# raw - Executes a low-down and dirty SSH command
+# REF: http://docs.ansible.com/ansible/raw_module.html
+######################################################
+
+  - name: systemctl daemon-reload
+    shell: systemctl daemon-reload
+
+
+# Enable and start chatops.service
+# REF: http://docs.ansible.com/ansible/service_module.html
+##########################################################
+
+  - name: Enable and start the skynet-dev.service service
+    service:
+      name: skynet-dev.service
+      enabled: yes
+      state: restarted
+      # Note: Verify DEV skynet-dev.service via SSH command line:
+      # systemctl status skynet-dev.service    
